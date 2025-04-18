@@ -1,5 +1,5 @@
 import express from "express";
-import { login, register } from "../controllers/authControllers.js";
+import { login, register, sendMail, updatePassword } from "../controllers/authControllers.js";
 import passport from "passport";
 import jwt from 'jsonwebtoken';
 
@@ -24,5 +24,8 @@ authRouter.get('/google/callback', passport.authenticate('google', {
         res.redirect(`${process.env.FRONTEND_URL}/login`);
     }
 });
+
+authRouter.post('/forgot-password', sendMail);
+authRouter.post('/update-password', updatePassword);
 
 export default authRouter;
