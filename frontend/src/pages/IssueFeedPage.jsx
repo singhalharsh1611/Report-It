@@ -1,6 +1,7 @@
-import React, { useState } from "react";
-import { IssueCard } from "../components/IssueCard.jsx";
+import React, { useState, useEffect } from "react";
+import { IssueCard } from "../components/issues/IssueCard.jsx";
 import { Button } from "@/components/ui/button";
+import axios from "axios";
 import {
   Filter,
   ArrowUpDown,
@@ -32,6 +33,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { useNavigate } from "react-router-dom";
 
 // sample data
 const mockIssues = [
@@ -106,11 +108,86 @@ const mockIssues = [
       "https://images.unsplash.com/photo-1524661135-423995f22d0b?auto=format&fit=crop&w=800&q=60",
   },
 ];
+const backend = import.meta.env.VITE_BACKEND_URL;
 
 const IssueFeedPage = () => {
-  const [issues] = useState(mockIssues);
+  // const [issues] = useState(mockIssues);
   const [isFilterExpanded, setIsFilterExpanded] = useState(false);
 
+  const [statusFilter, setStatusFilter] = useState([]);
+  const [categoryFilter, setCategoryFilter] = useState("");
+  const [sortBy, setSortBy] = useState("latest");
+  const [issues, setIssues] = useState([]);
+  const navigate = useNavigate();
+
+  const getIssueFeed = async () => {
+    try {
+      const queryParams = new URLSearchParams();
+
+      if (statusFilter.length > 0) {
+        statusFilter.forEach((status) => queryParams.append("status", status));
+      }
+
+      if (categoryFilter && categoryFilter !== "all") {
+        queryParams.append("category", categoryFilter);
+      }
+
+      if (sortBy) {
+        queryParams.append("sort", sortBy);
+      }
+
+      const response = await axios.get(
+        `${backend}/issue?${queryParams.toString()}`
+      );
+
+      if (response.data.success) {
+        setIssues(response.data.issues);
+      } else {
+        console.error(response.data.message || "Failed to load issues");
+      }
+    } catch (err) {
+      console.error("Error fetching issues:", err);
+    }
+  };
+
+  // Inside your component
+  const handleStatusChange = (
+    status,
+    checked,
+    statusFilter,
+    setStatusFilter
+  ) => {
+    const updated = checked
+      ? [...statusFilter, status]
+      : statusFilter.filter((s) => s !== status);
+    setStatusFilter(updated);
+  };
+
+  const renderStatusCheckboxes = (statusFilter, setStatusFilter) => {
+    const statuses = ["open", "in-progress", "review", "resolved", "rejected"];
+
+    return statuses.map((status) => (
+      <label key={status} className="flex items-center space-x-2 text-sm">
+        <input
+          type="checkbox"
+          className="form-checkbox"
+          checked={statusFilter.includes(status)}
+          onChange={(e) =>
+            handleStatusChange(
+              status,
+              e.target.checked,
+              statusFilter,
+              setStatusFilter
+            )
+          }
+        />
+        <span className="capitalize">{status.replace("-", " ")}</span>
+      </label>
+    ));
+  };
+  useEffect(() => {
+    getIssueFeed(); // fetch issues when the page loads
+  }, []);
   return (
     <div className="pb-12">
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-6 gap-4">
@@ -122,7 +199,12 @@ const IssueFeedPage = () => {
         </div>
 
         <div className="flex items-center gap-2">
-          <Button variant="outline" size="sm" className="gap-2">
+          <Button
+            variant="outline"
+            size="sm"
+            className="gap-2"
+            onClick={() => navigate("/map")}
+          >
             <MapIcon className="h-4 w-4" />
             Map View
           </Button>
@@ -151,32 +233,13 @@ const IssueFeedPage = () => {
               <div className="space-y-2">
                 <label className="text-sm font-medium">Status</label>
                 <div className="grid grid-cols-2 gap-2">
-                  {[
-                    "open",
-                    "in-progress",
-                    "review",
-                    "resolved",
-                    "rejected",
-                  ].map((status) => (
-                    <label
-                      key={status}
-                      className="flex items-center space-x-2 text-sm"
-                    >
-                      <input
-                        type="checkbox"
-                        className="form-checkbox h-4 w-4 text-primary rounded border-gray-400"
-                      />
-                      <span className="capitalize">
-                        {status.replace("-", " ")}
-                      </span>
-                    </label>
-                  ))}
+                  {renderStatusCheckboxes(statusFilter, setStatusFilter)}
                 </div>
               </div>
 
               <div className="space-y-2">
                 <label className="text-sm font-medium">Category</label>
-                <Select>
+                <Select onValueChange={(val) => setCategoryFilter(val)}>
                   <SelectTrigger>
                     <SelectValue placeholder="All categories" />
                   </SelectTrigger>
@@ -195,12 +258,15 @@ const IssueFeedPage = () => {
 
               <div className="space-y-2">
                 <label className="text-sm font-medium">Sort By</label>
-                <Select>
+                <Select
+                  value={sortBy}
+                  onValueChange={(value) => setSortBy(value)}
+                >
                   <SelectTrigger>
                     <SelectValue placeholder="Most Recent" />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="recent">Most Recent</SelectItem>
+                    <SelectItem value="latest">Most Recent</SelectItem>
                     <SelectItem value="oldest">Oldest First</SelectItem>
                     <SelectItem value="upvotes">Most Upvotes</SelectItem>
                     <SelectItem value="comments">Most Comments</SelectItem>
@@ -208,7 +274,9 @@ const IssueFeedPage = () => {
                 </Select>
               </div>
 
-              <Button className="w-full mt-2">Apply Filters</Button>
+              <Button className="w-full mt-2" onClick={getIssueFeed}>
+                Apply Filters
+              </Button>
             </div>
           </div>
 
@@ -343,9 +411,27 @@ const IssueFeedPage = () => {
 
           {/* Issue Cards */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            {issues.map((issue) => (
-              <IssueCard key={issue.id} issue={issue} />
-            ))}
+            {issues.length === 0 ? (
+              <p>No issues found.</p>
+            ) : (
+              issues.map((issue) => (
+                <IssueCard
+                  key={issue._id} // or key={issue.id} if normalized
+                  issue={{
+                    id: issue._id, // pass it down as `id`
+                    title: issue.title,
+                    description: issue.description,
+                    category: issue.category,
+                    status: issue.status,
+                    location: issue.location.address,
+                    createdAt: issue.createdAt,
+                    upvotes: issue.upvotes,
+                    comments: issue.commentsCount || 0, // if you populated a count
+                    imageUrl: issue.imageURL[0],
+                  }}
+                />
+              ))
+            )}
           </div>
 
           {/* Pagination */}

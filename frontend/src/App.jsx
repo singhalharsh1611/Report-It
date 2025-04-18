@@ -10,8 +10,8 @@ import ReportIssuePage from "./pages/ReportIssuePage.jsx";
 import { AuthProvider } from "./contexts/AuthProvider.jsx";
 import GoogleSuccess from "./components/GoogleSuccess.jsx";
 import ForgotPassword from "./pages/ForgotPassword.jsx";
-
 import IssueFeedPage from "./pages/IssueFeedPage.jsx";
+import MapPage from "./pages/MapPage.jsx";
 
 const App = () => {
   return (
@@ -35,6 +35,14 @@ const App = () => {
               element={
                 <Layout>
                   <ReportIssuePage />
+                </Layout>
+              }
+            />
+            <Route
+              path="/map"
+              element={
+                <Layout>
+                  <MapPage />
                 </Layout>
               }
             />
