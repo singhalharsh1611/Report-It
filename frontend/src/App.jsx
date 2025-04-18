@@ -11,6 +11,8 @@ import { AuthProvider } from "./contexts/AuthProvider.jsx";
 import GoogleSuccess from "./components/GoogleSuccess.jsx";
 import ForgotPassword from "./pages/ForgotPassword.jsx";
 
+import IssueFeedPage from "./pages/IssueFeedPage.jsx";
+
 const App = () => {
   return (
     <>
@@ -41,6 +43,17 @@ const App = () => {
             <Route path="/register" element={<RegisterPage />} />
             <Route path="/google-success" element={<GoogleSuccess />} />
             <Route path="/forgot-password" element={<ForgotPassword />} />
+            <Route
+              path="/issues"
+              element={
+                <Layout>
+                  <IssueFeedPage />
+                </Layout>
+              }
+            />
+            {/* don't use layout component */}
+            <Route path="/login" element={<LoginPage />} />
+            <Route path="/register" element={<RegisterPage />} />
           </Routes>
         </AuthProvider>
       </BrowserRouter>
