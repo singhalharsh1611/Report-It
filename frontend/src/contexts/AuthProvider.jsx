@@ -21,7 +21,7 @@ export const AuthProvider = ({ children }) => {
         headers: { Authorization: `Bearer ${token}` },
       });
 
-      setUser(response.data.user);
+      setUser(response.data);
     } catch (error) {
       console.log("Error fetching user: ", error);
       logout(); //if token is invalid
@@ -82,10 +82,13 @@ export const AuthProvider = ({ children }) => {
   };
 
   useEffect(() => {
-    if (token) {
-      getCurrentUser();
-    }
-    setLoading(false);
+    const fetchUser = async () => {
+      if (token) {
+        await getCurrentUser();
+      }
+      setLoading(false);
+    };
+    fetchUser();
   }, [token]);
 
   return (
