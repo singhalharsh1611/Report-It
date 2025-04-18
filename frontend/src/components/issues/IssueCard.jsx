@@ -7,7 +7,7 @@ import {
 } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { StatusBadge } from "@/components/ui/status-badge";
-import { MessageSquare, ThumbsUp, Calendar, MapPin } from "lucide-react";
+import { MessageSquare, ArrowBigUp, Calendar, MapPin } from "lucide-react";
 
 export function IssueCard({ issue }) {
   return (
@@ -57,7 +57,7 @@ export function IssueCard({ issue }) {
             size="sm"
             className="gap-1 text-muted-foreground hover:text-primary"
           >
-            <ThumbsUp className="h-4 w-4" />
+            <ArrowBigUp className="h-4 w-4" />
             <span>{issue.upvotes}</span>
           </Button>
           <Button

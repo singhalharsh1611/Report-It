@@ -98,7 +98,7 @@ const ReportIssuePage = () => {
       });
 
       toast.success("Issue reported sucessfully");
-      navigate("/");
+      navigate("/issues");
     } catch (error) {
       toast.error(
         error.response?.data?.message ||

@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { IssueCard } from "../components/IssueCard.jsx";
+import { IssueCard } from "../components/issues/IssueCard.jsx";
 import { Button } from "@/components/ui/button";
 import axios from "axios";
 import {
@@ -33,6 +33,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { useNavigate } from "react-router-dom";
 
 // sample data
 const mockIssues = [
@@ -114,25 +115,25 @@ const IssueFeedPage = () => {
   const [isFilterExpanded, setIsFilterExpanded] = useState(false);
 
   const [statusFilter, setStatusFilter] = useState([]);
-  const [categoryFilter, setCategoryFilter] = useState('');
-  const [sortBy, setSortBy] = useState('latest');
+  const [categoryFilter, setCategoryFilter] = useState("");
+  const [sortBy, setSortBy] = useState("latest");
   const [issues, setIssues] = useState([]);
-
+  const navigate = useNavigate();
 
   const getIssueFeed = async () => {
     try {
       const queryParams = new URLSearchParams();
 
       if (statusFilter.length > 0) {
-        statusFilter.forEach((status) => queryParams.append('status', status));
+        statusFilter.forEach((status) => queryParams.append("status", status));
       }
 
-      if (categoryFilter && categoryFilter !== 'all') {
-        queryParams.append('category', categoryFilter);
+      if (categoryFilter && categoryFilter !== "all") {
+        queryParams.append("category", categoryFilter);
       }
 
       if (sortBy) {
-        queryParams.append('sort', sortBy);
+        queryParams.append("sort", sortBy);
       }
 
       const response = await axios.get(
@@ -142,15 +143,20 @@ const IssueFeedPage = () => {
       if (response.data.success) {
         setIssues(response.data.issues);
       } else {
-        console.error(response.data.message || 'Failed to load issues');
+        console.error(response.data.message || "Failed to load issues");
       }
     } catch (err) {
-      console.error('Error fetching issues:', err);
+      console.error("Error fetching issues:", err);
     }
   };
 
   // Inside your component
-  const handleStatusChange = (status, checked, statusFilter, setStatusFilter) => {
+  const handleStatusChange = (
+    status,
+    checked,
+    statusFilter,
+    setStatusFilter
+  ) => {
     const updated = checked
       ? [...statusFilter, status]
       : statusFilter.filter((s) => s !== status);
@@ -158,7 +164,7 @@ const IssueFeedPage = () => {
   };
 
   const renderStatusCheckboxes = (statusFilter, setStatusFilter) => {
-    const statuses = ['open', 'in-progress', 'review', 'resolved', 'rejected'];
+    const statuses = ["open", "in-progress", "review", "resolved", "rejected"];
 
     return statuses.map((status) => (
       <label key={status} className="flex items-center space-x-2 text-sm">
@@ -167,10 +173,15 @@ const IssueFeedPage = () => {
           className="form-checkbox"
           checked={statusFilter.includes(status)}
           onChange={(e) =>
-            handleStatusChange(status, e.target.checked, statusFilter, setStatusFilter)
+            handleStatusChange(
+              status,
+              e.target.checked,
+              statusFilter,
+              setStatusFilter
+            )
           }
         />
-        <span className="capitalize">{status.replace('-', ' ')}</span>
+        <span className="capitalize">{status.replace("-", " ")}</span>
       </label>
     ));
   };
@@ -188,7 +199,12 @@ const IssueFeedPage = () => {
         </div>
 
         <div className="flex items-center gap-2">
-          <Button variant="outline" size="sm" className="gap-2">
+          <Button
+            variant="outline"
+            size="sm"
+            className="gap-2"
+            onClick={() => navigate("/map")}
+          >
             <MapIcon className="h-4 w-4" />
             Map View
           </Button>
@@ -242,7 +258,10 @@ const IssueFeedPage = () => {
 
               <div className="space-y-2">
                 <label className="text-sm font-medium">Sort By</label>
-                <Select value={sortBy} onValueChange={(value) => setSortBy(value)}>
+                <Select
+                  value={sortBy}
+                  onValueChange={(value) => setSortBy(value)}
+                >
                   <SelectTrigger>
                     <SelectValue placeholder="Most Recent" />
                   </SelectTrigger>
@@ -397,9 +416,9 @@ const IssueFeedPage = () => {
             ) : (
               issues.map((issue) => (
                 <IssueCard
-                  key={issue._id}           // or key={issue.id} if normalized
+                  key={issue._id} // or key={issue.id} if normalized
                   issue={{
-                    id: issue._id,          // pass it down as `id`
+                    id: issue._id, // pass it down as `id`
                     title: issue.title,
                     description: issue.description,
                     category: issue.category,
@@ -408,7 +427,7 @@ const IssueFeedPage = () => {
                     createdAt: issue.createdAt,
                     upvotes: issue.upvotes,
                     comments: issue.commentsCount || 0, // if you populated a count
-                    imageUrl: issue.imageURL[0]
+                    imageUrl: issue.imageURL[0],
                   }}
                 />
               ))
