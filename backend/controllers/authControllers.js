@@ -5,11 +5,20 @@ import bcrypt from "bcrypt";
  dotenv.config();
  
  export const register = async (req, res) => {
-     const { name, email, password, role } = req.body;
+     const { name, email, password, role, secretKey } = req.body;
  
      if (!name || !email || !password) {
          return res.status(400).json({ message: "All fields are required", success: false });
      }
+
+     if (role === 'admin') {
+        if (!secretKey || secretKey !== process.env.ADMIN_SECRET_KEY) {
+            return res.status(401).json({
+                message: "Unauthorized: Invalid secret key",
+                success: false
+            });
+        }
+    }
  
      const userExists = await User.findOne({ email });
      if (userExists) {
