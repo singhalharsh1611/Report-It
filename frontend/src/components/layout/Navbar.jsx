@@ -31,7 +31,7 @@ const Navbar = ({ toggleSidebar }) => {
               <div className="h-8 w-8 flex items-center justify-center rounded-md bg-primary text-primary-foreground mr-2">
                 <span className="font-bold text-lg">R</span>
               </div>
-              <h1 className="text-xl font-bold text-gradient">ReportIt</h1>
+              <h1 className="text-xl font-bold text-gradient">Report It</h1>
             </div>
           </Link>
         </div>

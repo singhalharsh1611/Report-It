@@ -1,9 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { IssueCard } from '@/components/issues/IssueCard';
 import { Button } from '@/components/ui/button';
-import React, { useState, useEffect } from "react";
-import { IssueCard } from "../components/issues/IssueCard.jsx";
-import { Button } from "@/components/ui/button";
 import axios from "axios";
 import {
   Filter,
@@ -17,7 +14,8 @@ import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuGroup, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
-import axios from 'axios'
+import { useNavigate } from 'react-router-dom';
+
 
 const backend = import.meta.env.VITE_BACKEND_URL;
 const IssueFeedPage = () => {
