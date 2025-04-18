@@ -10,7 +10,8 @@ import express from "express";
  
  import { authMiddleware } from "../middleware/authMiddleware.js";
  import { authorizeroles } from "../middleware/rolesMiddleware.js";
- 
+ import commentRouter from "./commentRoute.js";
+
  const issueRouter = express.Router();
  
  issueRouter.post("/", authMiddleware, createIssue);
@@ -19,5 +20,6 @@ import express from "express";
  issueRouter.patch("/:id/status", authMiddleware,authorizeroles("admin","moderator"), updateIssueStatus);
  issueRouter.patch("/:id/upvote", authMiddleware, upvoteIssue);
  issueRouter.delete("/:id", authMiddleware, deleteIssue);
- 
+ issueRouter.use('/:id/comments', commentRouter);
+
  export default issueRouter;
