@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
+import { Link } from "react-router-dom";
 import { Eye, EyeOff, LogIn, User } from "lucide-react";
 import {
   Card,
@@ -14,6 +15,10 @@ import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
 
 const LoginPage = () => {
+import { useAuth } from "@/contexts/AuthContext";
+
+const LoginPage = () => {
+  const { login } = useAuth();
   const [formData, setFormData] = useState({
     email: "",
     password: "",
@@ -38,6 +43,17 @@ const LoginPage = () => {
       setIsLoading(false);
       navigate("/");
     }, 1500);
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setIsLoading(true);
+
+    try {
+      await login(formData.email, formData.password);
+    } catch (error) {
+      console.log(error);
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (
@@ -53,6 +69,11 @@ const LoginPage = () => {
           <CardDescription>
             Sign in to your CivicConnect account
           </CardDescription>
+              <span className="font-bold text-xl">R</span>
+            </div>
+          </div>
+          <CardTitle className="text-2xl font-bold">Welcome back</CardTitle>
+          <CardDescription>Sign in to your ReportIt account</CardDescription>
         </CardHeader>
 
         <form onSubmit={handleSubmit}>

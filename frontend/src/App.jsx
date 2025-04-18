@@ -7,6 +7,7 @@ import { Toaster } from "./components/ui/sonner.jsx";
 import { Toaster as Sonner } from "./components/ui/sonner";
 import RegisterPage from "./pages/RegisterPage.jsx";
 import ReportIssuePage from "./pages/ReportIssuePage.jsx";
+import { AuthProvider } from "./contexts/AuthProvider.jsx";
 
 const App = () => {
   return (
@@ -36,6 +37,21 @@ const App = () => {
           <Route path="/login" element={<LoginPage />} />
           <Route path="/register" element={<RegisterPage />} />
         </Routes>
+        <AuthProvider>
+          <Routes>
+            {/* use layout component */}
+            <Route
+              path="/"
+              element={
+                <Layout>
+                  <HomePage />
+                </Layout>
+              }
+            />
+            {/* don't use layout component */}
+            <Route path="/login" element={<LoginPage />} />
+          </Routes>
+        </AuthProvider>
       </BrowserRouter>
     </>
   );

@@ -17,7 +17,7 @@ const port = process.env.PORT;
 app.use(express.json())
 
 app.use(cors({
-    origin: ['http:localhost:4000'],
+    origin: ['http://localhost:4000', 'http://localhost:5173'],
     credentials: true
 }));
 
@@ -40,8 +40,8 @@ app.get('/', (req, res) => {
 app.use('/api/auth', authRouter); //for login-register
 app.use('/api/users/', userRouter); //for user management
 
- app.use('/api/users/', userRouter); //for user management
- app.use("/api/issue", issueRouter);
+app.use('/api/users/', userRouter); //for user management
+app.use("/api/issue", issueRouter);
 
 app.use('/api/admin', adminRouter); //for admins
 
