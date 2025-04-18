@@ -1,30 +1,17 @@
-import React from "react";
+import React, { useContext } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
-import {
-  Bell,
-  Menu,
-  Search,
-  User,
-  LogIn,
-  UserPlus,
-  LogOut,
-} from "lucide-react";
+import { Bell, Menu, Search, User, LogIn, UserPlus, LogOut } from "lucide-react";
 import { Button } from "../ui/button";
+import AuthContext from "@/contexts/AuthContext";
 
 const Navbar = ({ toggleSidebar }) => {
   const location = useLocation();
   const navigate = useNavigate();
   const isLoggedIn = Boolean(localStorage.getItem("token")); //check status using token from local storage
-
+  const {logout}=useContext(AuthContext);
   const isAuthPage = ["/login", "/register"].includes(location.pathname);
-
-  // Don't show navbar on auth pages
   if (isAuthPage) return null;
-
-  const handleLogout = () => {
-    localStorage.removeItem("token"); // Clear the token
-    navigate("/"); // Redirect to home page
-  };
+  
 
   return (
     <header className="fixed top-0 left-0 right-0 z-30 bg-gradient-to-r from-card to-card/70 backdrop-blur-md border-b border-white/5">
@@ -44,7 +31,7 @@ const Navbar = ({ toggleSidebar }) => {
               <div className="h-8 w-8 flex items-center justify-center rounded-md bg-primary text-primary-foreground mr-2">
                 <span className="font-bold text-lg">R</span>
               </div>
-              <h1 className="text-xl font-bold text-gradient">Report It</h1>
+              <h1 className="text-xl font-bold text-gradient">ReportIt</h1>
             </div>
           </Link>
         </div>
@@ -72,7 +59,7 @@ const Navbar = ({ toggleSidebar }) => {
                 variant="ghost"
                 size="sm"
                 className="gap-2"
-                onClick={handleLogout}
+                onClick={logout}
               >
                 <LogOut className="h-4 w-4" />
                 <span className="hidden sm:inline">Logout</span>

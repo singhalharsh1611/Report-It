@@ -24,6 +24,9 @@ import AuthContext from "@/contexts/AuthContext";
 import axios from "axios";
 const backendUrl = import.meta.env.VITE_BACKEND_URL;
 
+const openCageApiKey = import.meta.env.VITE_OPENCAGE_API_KEY;
+const openCageUrl = "https://api.opencagedata.com/geocode/v1/json";
+
 const ReportIssuePage = () => {
   const [title, setTitle] = useState("");
   const [category, setCategory] = useState("");
@@ -41,11 +44,28 @@ const ReportIssuePage = () => {
   const handleUserLocation = () => {
     if (navigator.geolocation) {
       navigator.geolocation.getCurrentPosition(
-        (position) => {
+        async (position) => {
           const { latitude, longitude } = position.coords;
           setLongitude(longitude);
           setLatitude(latitude);
-          setAddress(`Lat: ${latitude}, Lng: ${longitude}`);
+
+          try {
+            const response = await axios.get(openCageUrl, {
+              params: {
+                q: `${latitude}+${longitude}`,
+                key: openCageApiKey,
+              },
+            });
+
+            const textAddress = response.data.results[0]?.formatted;
+
+            if (textAddress) {
+              setAddress(textAddress);
+            } else {
+              setAddress(`Lat: ${latitude}, Lng: ${longitude}`);
+              toast.error("Unable to fetch address");
+            }
+          } catch (error) {}
         },
         (error) => {
           toast.error("Unable to fetch location");
@@ -77,7 +97,12 @@ const ReportIssuePage = () => {
       toast.error("Please select a category");
       return;
     }
-
+    if(token===null){
+      toast.error("plz login");
+      navigate("/login");
+      return;
+    }
+    console.log(token);
     const formData = new FormData();
     formData.append("title", title);
     formData.append("category", category);
@@ -106,7 +131,13 @@ const ReportIssuePage = () => {
       );
     } finally {
       setIsSubmitting(false);
+      toast.success('Your issue has been reported successfully!');
+      setTimeout(() => {
+        navigate('/issues');
+      }, 1500); // Only one delay argument, properly placed
     }
+    
+
   };
 
   return (
@@ -137,7 +168,7 @@ const ReportIssuePage = () => {
                   placeholder="e.g., Broken Streetlight, Pothole, etc."
                   required
                   value={title}
-                   onChange={(e) => setTitle(e.target.value)}
+                  onChange={(e) => setTitle(e.target.value)}
                 />
               </div>
 
@@ -171,7 +202,7 @@ const ReportIssuePage = () => {
                   rows={4}
                   required
                   value={description}
-                   onChange={(e) => setDescription(e.target.value)}
+                  onChange={(e) => setDescription(e.target.value)}
                 />
               </div>
 
@@ -185,7 +216,7 @@ const ReportIssuePage = () => {
                     className="flex-1"
                     required
                     value={address}
-                     onChange={(e) => setAddress(e.target.value)}
+                    onChange={(e) => setAddress(e.target.value)}
                   />
                   <Button
                     type="button"
@@ -198,7 +229,7 @@ const ReportIssuePage = () => {
                   </Button>
                 </div>
                 <p className="text-xs text-muted-foreground mt-1">
-                  Click the map pin to use your current location
+                  Click the map pin to use your current location and click to edit text
                 </p>
               </div>
 
@@ -253,7 +284,12 @@ const ReportIssuePage = () => {
             </div>
 
             <div className="flex gap-4 pt-4">
-              <Button type="button" variant="outline" className="flex-1" onClick={()=>navigate(-1)}>
+              <Button
+                type="button"
+                variant="outline"
+                className="flex-1"
+                onClick={() => navigate(-1)}
+              >
                 Cancel
               </Button>
               <Button type="submit" className="flex-1" disabled={isSubmitting}>
