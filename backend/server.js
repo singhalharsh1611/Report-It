@@ -7,6 +7,8 @@ import session from "express-session";
 import authRouter from "./routes/authRoute.js";
 import userRouter from "./routes/userRoute.js";
 import adminRouter from "./routes/adminRoute.js";
+import issueRouter from "./routes/issueRouter.js";
+
 
 
 const app = express();
@@ -38,6 +40,8 @@ app.get('/', (req, res) => {
 app.use('/api/auth', authRouter); //for login-register
 app.use('/api/users/', userRouter); //for user management
 
+ app.use('/api/users/', userRouter); //for user management
+ app.use("/api/issue", issueRouter);
 
 app.use('/api/admin', adminRouter); //for admins
 
