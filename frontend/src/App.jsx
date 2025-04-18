@@ -28,6 +28,14 @@ const App = () => {
                 </Layout>
               }
             />
+            <Route
+              path="/report"
+              element={
+                <Layout>
+                  <ReportIssuePage />
+                </Layout>
+              }
+            />
             {/* don't use layout component */}
             <Route path="/login" element={<LoginPage />} />
             <Route path="/register" element={<RegisterPage />} />

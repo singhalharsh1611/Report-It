@@ -10,6 +10,7 @@ import adminRouter from "./routes/adminRoute.js";
 import issueRouter from "./routes/issueRouter.js";
 import passport from "passport";
 import passportSetup from "./config/passport.js";
+import multer from "multer";
 passportSetup();
 
 

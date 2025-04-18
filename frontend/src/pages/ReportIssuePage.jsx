@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useContext, useState } from "react";
 import {
   Card,
   CardContent,
@@ -20,43 +20,93 @@ import {
 import { Upload, Image as ImageIcon, X, MapPin } from "lucide-react";
 import { toast } from "sonner";
 import { useNavigate } from "react-router-dom";
+import AuthContext from "@/contexts/AuthContext";
+import axios from "axios";
+const backendUrl = import.meta.env.VITE_BACKEND_URL;
 
 const ReportIssuePage = () => {
-  const [images, setImages] = useState([]);
+  const [title, setTitle] = useState("");
+  const [category, setCategory] = useState("");
+  const [description, setDescription] = useState("");
+  const [address, setAddress] = useState("");
+  const [imageFiles, setImageFiles] = useState([]);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [latitude, setLatitude] = useState();
+  const [longitude, setLongitude] = useState();
+
+  const { token } = useContext(AuthContext);
+
   const navigate = useNavigate();
+
+  const handleUserLocation = () => {
+    if (navigator.geolocation) {
+      navigator.geolocation.getCurrentPosition(
+        (position) => {
+          const { latitude, longitude } = position.coords;
+          setLongitude(longitude);
+          setLatitude(latitude);
+          setAddress(`Lat: ${latitude}, Lng: ${longitude}`);
+        },
+        (error) => {
+          toast.error("Unable to fetch location");
+        }
+      );
+    } else toast.error("Geolocation is not supported by your browser");
+  };
 
   const handleImageUpload = (event) => {
     if (event.target.files && event.target.files.length > 0) {
-      const newImages = Array.from(event.target.files).map((file) =>
-        URL.createObjectURL(file)
-      );
-      setImages((prev) => [...prev, ...newImages]);
+      const newImages = Array.from(event.target.files);
+      setImageFiles((prev) => [...prev, ...newImages]);
     }
   };
 
   const removeImage = (index) => {
-    setImages((prev) => prev.filter((_, i) => i !== index));
+    setImageFiles((prev) => prev.filter((_, i) => i !== index));
   };
 
   const handleSubmit = async (event) => {
     event.preventDefault();
 
-    if (images.length === 0) {
+    if (imageFiles.length === 0) {
       toast.error("Please upload at least one image");
       return;
     }
 
+    if (!category) {
+      toast.error("Please select a category");
+      return;
+    }
+
+    const formData = new FormData();
+    formData.append("title", title);
+    formData.append("category", category);
+    formData.append("description", description);
+    formData.append("location[address]", address);
+    formData.append("location[latitude]", latitude);
+    formData.append("location[longitude]", longitude);
+    imageFiles.forEach((file) => formData.append("images", file));
+
     setIsSubmitting(true);
 
-    setTimeout(() => {
+    try {
+      await axios.post(`${backendUrl}/issue/`, formData, {
+        headers: {
+          "Content-Type": "multipart/form-data",
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      toast.success("Issue reported sucessfully");
+      navigate("/");
+    } catch (error) {
+      toast.error(
+        error.response?.data?.message ||
+          "An error occurred while reporting the issue"
+      );
+    } finally {
       setIsSubmitting(false);
-      toast.success("Your issue has been reported successfully!");
-      // redirect to issues page
-      setTimeout(() => {
-        navigate("/");
-      }, 1000);
-    }, 1500);
+    }
   };
 
   return (
@@ -86,13 +136,15 @@ const ReportIssuePage = () => {
                   id="title"
                   placeholder="e.g., Broken Streetlight, Pothole, etc."
                   required
+                  value={title}
+                   onChange={(e) => setTitle(e.target.value)}
                 />
               </div>
 
               {/* Issue Category */}
               <div className="space-y-2">
                 <Label htmlFor="category">Category</Label>
-                <Select>
+                <Select value={category} onValueChange={setCategory}>
                   <SelectTrigger>
                     <SelectValue placeholder="Select category" />
                   </SelectTrigger>
@@ -118,6 +170,8 @@ const ReportIssuePage = () => {
                   placeholder="Please describe the issue in detail..."
                   rows={4}
                   required
+                  value={description}
+                   onChange={(e) => setDescription(e.target.value)}
                 />
               </div>
 
@@ -130,12 +184,15 @@ const ReportIssuePage = () => {
                     placeholder="Enter address or coordinates"
                     className="flex-1"
                     required
+                    value={address}
+                     onChange={(e) => setAddress(e.target.value)}
                   />
                   <Button
                     type="button"
                     variant="outline"
                     size="icon"
                     className="shrink-0"
+                    onClick={handleUserLocation}
                   >
                     <MapPin className="h-4 w-4" />
                   </Button>
@@ -170,13 +227,13 @@ const ReportIssuePage = () => {
                 </div>
 
                 {/* Image Preview */}
-                {images.length > 0 && (
+                {imageFiles.length > 0 && (
                   <div className="grid grid-cols-3 gap-2 mt-2">
-                    {images.map((img, index) => (
+                    {imageFiles.map((img, index) => (
                       <div key={index} className="relative group">
                         <div className="aspect-square rounded-md overflow-hidden border border-white/10">
                           <img
-                            src={img}
+                            src={URL.createObjectURL(img)}
                             alt={`Upload ${index + 1}`}
                             className="w-full h-full object-cover"
                           />
@@ -196,11 +253,11 @@ const ReportIssuePage = () => {
             </div>
 
             <div className="flex gap-4 pt-4">
-              <Button type="button" variant="outline" className="flex-1">
+              <Button type="button" variant="outline" className="flex-1" onClick={()=>navigate(-1)}>
                 Cancel
               </Button>
               <Button type="submit" className="flex-1" disabled={isSubmitting}>
-                {isSubmitting ? "Submitting..." : "Submit Report"}
+                {isSubmitting ? "Submitting..." : "Submit Issue"}
               </Button>
             </div>
           </form>
