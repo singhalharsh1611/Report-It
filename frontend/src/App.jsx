@@ -9,34 +9,14 @@ import RegisterPage from "./pages/RegisterPage.jsx";
 import ReportIssuePage from "./pages/ReportIssuePage.jsx";
 import { AuthProvider } from "./contexts/AuthProvider.jsx";
 
+import IssueFeedPage from "./pages/IssueFeedPage.jsx";
+
 const App = () => {
   return (
     <>
       <Toaster />
       <Sonner />
       <BrowserRouter>
-        <Routes>
-          {/* use layout component */}
-          <Route
-            path="/"
-            element={
-              <Layout>
-                <HomePage />
-              </Layout>
-            }
-          />
-          <Route
-            path="/report"
-            element={
-              <Layout>
-                <ReportIssuePage />
-              </Layout>
-            }
-          />
-          {/* don't use layout component */}
-          <Route path="/login" element={<LoginPage />} />
-          <Route path="/register" element={<RegisterPage />} />
-        </Routes>
         <AuthProvider>
           <Routes>
             {/* use layout component */}
@@ -48,8 +28,25 @@ const App = () => {
                 </Layout>
               }
             />
+            <Route
+              path="/report"
+              element={
+                <Layout>
+                  <ReportIssuePage />
+                </Layout>
+              }
+            />
+            <Route
+              path="/issues"
+              element={
+                <Layout>
+                  <IssueFeedPage />
+                </Layout>
+              }
+            />
             {/* don't use layout component */}
             <Route path="/login" element={<LoginPage />} />
+            <Route path="/register" element={<RegisterPage />} />
           </Routes>
         </AuthProvider>
       </BrowserRouter>
