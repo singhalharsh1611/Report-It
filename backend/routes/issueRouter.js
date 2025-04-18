@@ -20,6 +20,6 @@ import express from "express";
  issueRouter.patch("/:id/status", authMiddleware,authorizeroles("admin","moderator"), updateIssueStatus);
  issueRouter.patch("/:id/upvote", authMiddleware, upvoteIssue);
  issueRouter.delete("/:id", authMiddleware, deleteIssue);
- issueRouter.use('/:id/comments', commentRouter);
+ issueRouter.use('/:id_issue/comments', commentRouter);
 
  export default issueRouter;
