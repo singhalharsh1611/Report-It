@@ -68,3 +68,40 @@ import User from "../models/usersModel.js";
          });
      }
  }
+
+ export const verifyModerator = async (req, res) => {
+    try {
+        const userId = req.params.id;
+
+        const user = await User.findById(userId);
+        if (!user) {
+            return res.status(400).json({
+                message: "User not found",
+                success: false
+            })
+        }
+
+        if (user.role !== 'moderator') {
+            return res.status(400).json({
+                message: "User is not a moderator",
+                success: false
+            });
+        }
+
+        user.isVerified = true;
+        await user.save();
+
+        res.status(200).json({
+            message: "Moderator verified successfully",
+            success: true
+        });
+
+
+    } catch (error) {
+        console.log(error);
+        res.status(500).json({
+            message: "Server Error",
+            success: false
+        });
+    }
+}

@@ -5,7 +5,7 @@ import bcrypt from "bcrypt";
  dotenv.config();
  
  export const register = async (req, res) => {
-     const { name, email, password, role, secretKey } = req.body;
+    const { name, email, password, role, secretKey, aadharcard, panCard } = req.body;
  
      if (!name || !email || !password) {
          return res.status(400).json({ message: "All fields are required", success: false });
@@ -34,7 +34,10 @@ import bcrypt from "bcrypt";
          name,
          email,
          password: hashedPassword,
-         role: role || 'citizen'
+         role: role || 'citizen',
+         isVerified: (role === 'moderator') ? false : true,
+         aadharCard: (role === 'moderator') ? aadharCard : undefined,
+         panCard: (role === 'moderator') ? panCard : undefined
  
      });
      try {        
@@ -74,6 +77,13 @@ import bcrypt from "bcrypt";
              success: false
          });
      }
+
+     if (user.role === 'moderator' && !user.isVerified) {
+        return res.status(403).json({
+            message: "Your account is under verification. Please wait for admin approval.",
+            success: false
+        });
+    }
  
      const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET, { expiresIn: '1d' });
  
