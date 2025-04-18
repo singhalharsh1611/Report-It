@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { Link } from "react-router-dom";
 import { Eye, EyeOff, Mail, User, UserPlus } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -13,6 +13,14 @@ import {
 } from "@/components/ui/card";
 import { toast } from "sonner";
 import { useAuth } from "@/contexts/AuthContext";
+
+import GoogleIcon from "@mui/icons-material/Google";
+
+const handleGoogleLogin = (e) => {
+  e.preventDefault();
+  localStorage.removeItem("token");
+  window.location.href = `${import.meta.env.VITE_BACKEND_URL}/auth/google`;
+};
 
 const RegisterPage = () => {
   const { register } = useAuth();
@@ -153,6 +161,16 @@ const RegisterPage = () => {
           <CardFooter className="flex flex-col space-y-4">
             <Button type="submit" className="w-full" disabled={isLoading}>
               {isLoading ? "Creating account..." : "Create Account"}
+            </Button>
+
+            <Button
+              type="button"
+              variant="outline"
+              className="w-full flex items-center gap-2"
+              onClick={handleGoogleLogin}
+            >
+              <GoogleIcon />
+              Sign Up with Google
             </Button>
 
             <div className="text-center text-sm">

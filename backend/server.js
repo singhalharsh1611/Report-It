@@ -8,7 +8,9 @@ import authRouter from "./routes/authRoute.js";
 import userRouter from "./routes/userRoute.js";
 import adminRouter from "./routes/adminRoute.js";
 import issueRouter from "./routes/issueRouter.js";
-
+import passport from "passport";
+import passportSetup from "./config/passport.js";
+passportSetup();
 
 
 const app = express();
@@ -27,6 +29,8 @@ app.use(session({
     saveUninitialized: true
 }));
 
+app.use(passport.initialize());
+app.use(passport.session());
 
 //connect MONGO DB
 connectDB();

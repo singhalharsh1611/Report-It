@@ -9,6 +9,10 @@ const userSchema = new mongoose.Schema({
         enum: ['citizen', 'moderator', 'admin'],
         default: 'citizen',
     },
+    googleId: {
+        type: String,
+        required: false
+    },
     aadharCard: { type: String }, // for moderator
     panCard: { type: String },    // for moderator
     isVerified: { type: Boolean, default: true }, // citizens and admins are verified by default

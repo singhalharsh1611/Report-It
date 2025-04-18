@@ -1,7 +1,7 @@
 import React, { useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
 import { Link } from "react-router-dom";
 import { Eye, EyeOff, LogIn, User } from "lucide-react";
+import GoogleIcon from "@mui/icons-material/Google";
 import {
   Card,
   CardContent,
@@ -12,7 +12,6 @@ import {
 } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { toast } from "sonner";
 import { useAuth } from "@/contexts/AuthContext";
 
 const LoginPage = () => {
@@ -42,6 +41,12 @@ const LoginPage = () => {
     }
   };
 
+  const handleGoogleLogin = (e) => {
+    e.preventDefault();
+    localStorage.removeItem("token");
+    window.location.href = `${import.meta.env.VITE_BACKEND_URL}/auth/google`;
+  };
+
   return (
     <div className="flex min-h-screen items-center justify-center p-4">
       <Card className="mx-auto w-full max-w-md">
@@ -52,7 +57,7 @@ const LoginPage = () => {
             </div>
           </div>
           <CardTitle className="text-2xl font-bold">Welcome back</CardTitle>
-          <CardDescription>Sign in to your ReportIt account</CardDescription>
+          <CardDescription>Sign in to your Report It account</CardDescription>
         </CardHeader>
 
         <form onSubmit={handleSubmit}>
@@ -114,6 +119,16 @@ const LoginPage = () => {
           <CardFooter className="flex flex-col space-y-4">
             <Button type="submit" className="w-full" disabled={isLoading}>
               {isLoading ? "Logging In..." : "Log In"}
+            </Button>
+
+            <Button
+              type="button"
+              variant="outline"
+              className="w-full flex items-center gap-2"
+              onClick={handleGoogleLogin}
+            >
+              <GoogleIcon />
+              Login with Google
             </Button>
 
             <div className="text-center text-sm">
