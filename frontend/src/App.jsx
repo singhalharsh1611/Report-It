@@ -8,6 +8,7 @@ import HomePage from "./pages/HomePage.jsx";
 import LoginPage from "./pages/LoginPage.jsx";
 import { Toaster } from "./components/ui/sonner.jsx";
 import { Toaster as Sonner } from "./components/ui/sonner";
+import { AuthProvider } from "./contexts/AuthProvider.jsx";
 
 const App = () => {
   return (
@@ -15,19 +16,21 @@ const App = () => {
       <Toaster />
       <Sonner />
       <BrowserRouter>
-        <Routes>
-          {/* use layout component */}
-          <Route
-            path="/"
-            element={
-              <Layout>
-                <HomePage />
-              </Layout>
-            }
-          />
-          {/* don't use layout component */}
-          <Route path="/login" element={<LoginPage />} />
-        </Routes>
+        <AuthProvider>
+          <Routes>
+            {/* use layout component */}
+            <Route
+              path="/"
+              element={
+                <Layout>
+                  <HomePage />
+                </Layout>
+              }
+            />
+            {/* don't use layout component */}
+            <Route path="/login" element={<LoginPage />} />
+          </Routes>
+        </AuthProvider>
       </BrowserRouter>
     </>
   );
