@@ -2,14 +2,34 @@ import React from "react";
 import Navbar from "./components/layout/Navbar.jsx";
 import Sidebar from "./components/layout/Sidebar.jsx";
 
-import { BrowserRouter } from "react-router-dom";
+import { BrowserRouter, Route, Routes } from "react-router-dom";
+import Layout from "./components/layout/Layout.jsx";
+import HomePage from "./pages/HomePage.jsx";
+import LoginPage from "./pages/LoginPage.jsx";
+import { Toaster } from "./components/ui/sonner.jsx";
+import { Toaster as Sonner } from "./components/ui/sonner";
 
 const App = () => {
   return (
-    <BrowserRouter>
-      <Navbar />
-      <Sidebar />
-    </BrowserRouter>
+    <>
+      <Toaster />
+      <Sonner />
+      <BrowserRouter>
+        <Routes>
+          {/* use layout component */}
+          <Route
+            path="/"
+            element={
+              <Layout>
+                <HomePage />
+              </Layout>
+            }
+          />
+          {/* don't use layout component */}
+          <Route path="/login" element={<LoginPage />} />
+        </Routes>
+      </BrowserRouter>
+    </>
   );
 };
 
