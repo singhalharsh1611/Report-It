@@ -1,0 +1,136 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+    :root {
+        /* The light theme is preserved but will not be the default */
+        --background: 0 0% 100%;
+        --foreground: 222.2 84% 4.9%;
+        --card: 0 0% 100%;
+        --card-foreground: 222.2 84% 4.9%;
+        --popover: 0 0% 100%;
+        --popover-foreground: 222.2 84% 4.9%;
+        --primary: 222.2 47.4% 11.2%;
+        --primary-foreground: 210 40% 98%;
+        --secondary: 210 40% 96.1%;
+        --secondary-foreground: 222.2 47.4% 11.2%;
+        --muted: 210 40% 96.1%;
+        --muted-foreground: 215.4 16.3% 46.9%;
+        --accent: 210 40% 96.1%;
+        --accent-foreground: 222.2 47.4% 11.2%;
+        --destructive: 0 84.2% 60.2%;
+        --destructive-foreground: 210 40% 98%;
+        --border: 214.3 31.8% 91.4%;
+        --input: 214.3 31.8% 91.4%;
+        --ring: 222.2 84% 4.9%;
+        --radius: 0.5rem;
+    }
+
+    /* Dark theme values */
+    .dark,
+    :root {
+        /* Set dark theme as root default */
+        --background: 230 15% 10%;
+        /* Darker blue-ish gray */
+        --foreground: 210 40% 98%;
+
+        --card: 230 15% 15%;
+        /* Slightly lighter than background */
+        --card-foreground: 210 40% 98%;
+
+        --popover: 230 15% 12%;
+        --popover-foreground: 210 40% 98%;
+
+        --primary: 200 80% 50%;
+        /* Vibrant blue for primary actions */
+        --primary-foreground: 210 40% 98%;
+
+        --secondary: 217.2 32.6% 20%;
+        /* Slightly blueish dark gray */
+        --secondary-foreground: 210 40% 98%;
+
+        --muted: 217.2 32.6% 17.5%;
+        --muted-foreground: 215 20.2% 75%;
+        /* More visible muted text */
+
+        --accent: 199 76% 38%;
+        /* Teal accent */
+        --accent-foreground: 210 40% 98%;
+
+        --destructive: 0 62.8% 40%;
+        /* Brighter destructive for visibility */
+        --destructive-foreground: 210 40% 98%;
+
+        --border: 217.2 32.6% 22%;
+        /* Slightly more visible borders */
+        --input: 217.2 32.6% 22%;
+        --ring: 212.7 26.8% 83.9%;
+
+        /* Sidebar variables */
+        --sidebar-background: 230 15% 8%;
+        /* Darker than main bg */
+        --sidebar-foreground: 210 40% 90%;
+        --sidebar-primary: 200 80% 50%;
+        --sidebar-primary-foreground: 0 0% 100%;
+        --sidebar-accent: 230 15% 15%;
+        --sidebar-accent-foreground: 210 40% 90%;
+        --sidebar-border: 230 15% 12%;
+        --sidebar-ring: 200 80% 50%;
+    }
+}
+
+@layer base {
+    * {
+        @apply border-border;
+    }
+
+    html {
+        @apply scroll-smooth;
+    }
+
+    body {
+        @apply bg-background text-foreground;
+        font-feature-settings: "ss01", "ss02", "cv01", "cv02", "cv03";
+    }
+}
+
+@layer utilities {
+    .scrollbar-none {
+        -ms-overflow-style: none;
+        scrollbar-width: none;
+    }
+
+    .scrollbar-none::-webkit-scrollbar {
+        display: none;
+    }
+
+    .glass-card {
+        @apply backdrop-blur-md bg-black/20 border border-white/10;
+    }
+
+    .text-gradient {
+        @apply bg-gradient-to-br from-primary via-primary/90 to-accent bg-clip-text text-transparent;
+    }
+
+    /* Status tag styles */
+    .status-open {
+        @apply bg-status-open/20 text-status-open ring-1 ring-status-open/30;
+    }
+
+    .status-in-progress {
+        @apply bg-status-inProgress/20 text-status-inProgress ring-1 ring-status-inProgress/30;
+    }
+
+    .status-review {
+        @apply bg-status-review/20 text-status-review ring-1 ring-status-review/30;
+    }
+
+    .status-rejected {
+        @apply bg-status-rejected/20 text-status-rejected ring-1 ring-status-rejected/30;
+    }
+
+    .status-resolved {
+        @apply bg-status-resolved/20 text-status-resolved ring-1 ring-status-resolved/30;
+    }
+}
