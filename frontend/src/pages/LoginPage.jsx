@@ -13,8 +13,6 @@ import {
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
-
-const LoginPage = () => {
 import { useAuth } from "@/contexts/AuthContext";
 
 const LoginPage = () => {
@@ -25,24 +23,12 @@ const LoginPage = () => {
   });
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
-  const navigate = useNavigate();
 
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    setIsLoading(true);
-
-    setTimeout(() => {
-      // This is where you would integrate actual authentication
-
-      toast.success("Login successful!");
-      setIsLoading(false);
-      navigate("/");
-    }, 1500);
   const handleSubmit = async (e) => {
     e.preventDefault();
     setIsLoading(true);
@@ -62,13 +48,6 @@ const LoginPage = () => {
         <CardHeader className="text-center">
           <div className="flex justify-center mb-6">
             <div className="h-12 w-12 flex items-center justify-center rounded-full bg-primary text-primary-foreground">
-              <span className="font-bold text-xl">C</span>
-            </div>
-          </div>
-          <CardTitle className="text-2xl font-bold">Welcome back</CardTitle>
-          <CardDescription>
-            Sign in to your CivicConnect account
-          </CardDescription>
               <span className="font-bold text-xl">R</span>
             </div>
           </div>
