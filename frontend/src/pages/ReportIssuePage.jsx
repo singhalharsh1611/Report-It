@@ -48,6 +48,7 @@ const ReportIssuePage = () => {
           const { latitude, longitude } = position.coords;
           setLongitude(longitude);
           setLatitude(latitude);
+
           try {
             const response = await axios.get(openCageUrl, {
               params: {
@@ -96,7 +97,12 @@ const ReportIssuePage = () => {
       toast.error("Please select a category");
       return;
     }
-
+    if(token===null){
+      toast.error("plz login");
+      navigate("/login");
+      return;
+    }
+    console.log(token);
     const formData = new FormData();
     formData.append("title", title);
     formData.append("category", category);
@@ -125,7 +131,13 @@ const ReportIssuePage = () => {
       );
     } finally {
       setIsSubmitting(false);
+      toast.success('Your issue has been reported successfully!');
+      setTimeout(() => {
+        navigate('/issues');
+      }, 1500); // Only one delay argument, properly placed
     }
+    
+
   };
 
   return (
