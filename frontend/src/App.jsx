@@ -10,8 +10,9 @@ import ReportIssuePage from "./pages/ReportIssuePage.jsx";
 import { AuthProvider } from "./contexts/AuthProvider.jsx";
 import GoogleSuccess from "./components/GoogleSuccess.jsx";
 import ForgotPassword from "./pages/ForgotPassword.jsx";
-
 import IssueFeedPage from "./pages/IssueFeedPage.jsx";
+import MapPage from "./pages/MapPage.jsx";
+import StatusTrackingPage from "./pages/StatusTrackingPage.jsx";
 
 const App = () => {
   return (
@@ -38,6 +39,22 @@ const App = () => {
                 </Layout>
               }
             />
+            <Route
+              path="/map"
+              element={
+                <Layout>
+                  <MapPage />
+                </Layout>
+              }
+            />
+            <Route
+               path="/status"
+               element={
+                 <Layout>
+                   <StatusTrackingPage />
+                 </Layout>
+               }
+             />
             {/* don't use layout component */}
             <Route path="/login" element={<LoginPage />} />
             <Route path="/register" element={<RegisterPage />} />

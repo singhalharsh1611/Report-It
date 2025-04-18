@@ -123,7 +123,7 @@ const ReportIssuePage = () => {
       });
 
       toast.success("Issue reported sucessfully");
-      navigate("/");
+      navigate("/issues");
     } catch (error) {
       toast.error(
         error.response?.data?.message ||
@@ -229,7 +229,8 @@ const ReportIssuePage = () => {
                   </Button>
                 </div>
                 <p className="text-xs text-muted-foreground mt-1">
-                  Click the map pin to use your current location and click to edit text
+                  Click the map pin to use your current location and click to
+                  edit text
                 </p>
               </div>
 
