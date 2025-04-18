@@ -35,8 +35,8 @@ app.get('/', (req, res) => {
 
 
 //api endpoints
-app.use('/api/auth', authRouter);
-app.use('/api/users/', userRouter);
+app.use('/api/auth', authRouter); //for login-register
+ app.use('/api/users/', userRouter); //for user management
 
 
 
