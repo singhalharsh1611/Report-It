@@ -6,6 +6,7 @@ import { connectDB } from "./config/db.js";
 import session from "express-session";
 import authRouter from "./routes/authRoute.js";
 import userRouter from "./routes/userRoute.js";
+import issueRouter from "./routes/issueRouter.js";
 
 
 
@@ -37,7 +38,7 @@ app.get('/', (req, res) => {
 //api endpoints
 app.use('/api/auth', authRouter); //for login-register
  app.use('/api/users/', userRouter); //for user management
-
+ app.use("/api/issue", issueRouter);
 
 
 
