@@ -12,8 +12,10 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { toast } from "sonner";
+import { useAuth } from "@/contexts/AuthContext";
 
 const RegisterPage = () => {
+  const { register } = useAuth();
   const [formData, setFormData] = useState({
     name: "",
     email: "",
@@ -22,14 +24,13 @@ const RegisterPage = () => {
   });
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
-  const navigate = useNavigate();
 
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
 
     if (formData.password !== formData.confirmPassword) {
@@ -40,12 +41,13 @@ const RegisterPage = () => {
     setIsLoading(true);
 
     // Simulate registration delay
-    setTimeout(() => {
-      // This is where you would integrate actual registration logic
-      toast.success("Account created successfully!");
+    try {
+      await register(formData.name, formData.email, formData.password);
+    } catch (error) {
+      console.log(error);
+    } finally {
       setIsLoading(false);
-      navigate("/login");
-    }, 1500);
+    }
   };
 
   return (
@@ -54,13 +56,13 @@ const RegisterPage = () => {
         <CardHeader className="text-center">
           <div className="flex justify-center mb-6">
             <div className="h-12 w-12 flex items-center justify-center rounded-full bg-primary text-primary-foreground">
-              <span className="font-bold text-xl">C</span>
+              <span className="font-bold text-xl">R</span>
             </div>
           </div>
           <CardTitle className="text-2xl font-bold">
             Create an account
           </CardTitle>
-          <CardDescription>Sign up to start using CivicConnect</CardDescription>
+          <CardDescription>Sign up to start using Report It</CardDescription>
         </CardHeader>
 
         <form onSubmit={handleSubmit}>

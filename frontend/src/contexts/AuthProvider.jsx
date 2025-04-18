@@ -52,6 +52,27 @@ export const AuthProvider = ({ children }) => {
     }
   };
 
+  const register = async (name, email, password) => {
+    try {
+      const response = await axios.post(`${backendUrl}/auth/register`, {
+        name,
+        email,
+        password,
+      });
+      if (response.data.success) {
+        const { token, user } = response.data;
+
+        localStorage.setItem("token", token);
+        setToken(token);
+        setUser(user);
+        toast.success("Signup sucessful");
+        navigate("/");
+      }
+    } catch (error) {
+      toast.error(error.response.data.message || "Login Error", error);
+    }
+  };
+
   const logout = () => {
     localStorage.removeItem("token");
     setToken(null);
@@ -68,7 +89,7 @@ export const AuthProvider = ({ children }) => {
   }, [token]);
 
   return (
-    <AuthContext.Provider value={{ user, token, login, logout, loading }}>
+    <AuthContext.Provider value={{ user, token, login, logout, register, loading }}>
       {children}
     </AuthContext.Provider>
   );
