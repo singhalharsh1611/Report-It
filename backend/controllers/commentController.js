@@ -4,7 +4,7 @@ import Comment from "../models/commentsModel.js";
  export const addComment = async (req, res) => {
      try {
         const issueId = req.params.id_issue;
-         const { content } = req.body;
+         const { text } = req.body;
  
          const issue = await Issue.findById(issueId);
  
@@ -20,7 +20,7 @@ import Comment from "../models/commentsModel.js";
          const comment = await Comment.create({
              issue: issueId,
              user: req.user._id,
-             content
+             content:text
  
          });
  

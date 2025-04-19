@@ -1,15 +1,25 @@
 import React, { useContext, useEffect } from 'react';
-import { Link, Navigate } from 'react-router-dom';
+import { Link, Navigate, useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { PenSquare, Activity, Map, BarChart3, ArrowRight } from 'lucide-react';
 import AuthContext from '@/contexts/AuthContext';
 
 // const token
 const HomePage = () => {
-  const { token, user } = useContext(AuthContext);
+  const { token, user, loading } = useContext(AuthContext);
+  const navigate = useNavigate();
   // navigate(location.pathname, { replace: true });
+
   useEffect(() => {
   }, [token]);
+
+  useEffect(() => {
+    if (!loading && user) {
+      if (user.role === "moderator") {
+        navigate("/moderator/dashboard");
+      }
+    }
+  }, [user, loading, navigate]);
   return (
     <div className="flex flex-col gap-16 pb-20">
       {/* Top of page */}
@@ -20,7 +30,7 @@ const HomePage = () => {
         </h1>
         <p className="mt-6 text-md md:text-xl text-muted-foreground max-w-2xl">
           Report local civic issues, track their status, and see how your community is improving. 
-          CivicConnect helps residents and local governments work together.
+          Report It helps residents and local governments work together.
         </p>
         <div className="flex flex-col sm:flex-row gap-4 mt-8">
          {/* Redirect to report page */}
@@ -138,7 +148,7 @@ const HomePage = () => {
             Be part of the solution. Create an account to start reporting issues, 
             tracking updates, and helping make your community better.
           </p>
-          {(!token )?
+          {(!token)?
           <Link to="/register">
             <Button size="lg">
               Create Free Account 

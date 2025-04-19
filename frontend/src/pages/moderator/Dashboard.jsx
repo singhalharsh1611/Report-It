@@ -5,6 +5,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 
 import IssueFeed from "@/components/moderator/IssueFeed";
 import StatsSummary from "@/components/moderator/StatsSummary";
+import { useAuth } from "@/contexts/AuthContext";
 
 // Mock data for issues
 const MOCK_ISSUES = [
@@ -77,6 +78,12 @@ const Dashboard = () => {
     rejected: 0,
     pending: 0,
   });
+  const {token, user} = useAuth();
+  useEffect(() => {
+    if (user===null || !token || user.role!=="moderator") {
+      navigate("/");
+    }
+  }, [user]);
 
   useEffect(() => {
     const params = new URLSearchParams(location.search);

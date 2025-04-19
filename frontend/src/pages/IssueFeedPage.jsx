@@ -30,7 +30,7 @@ const IssueFeedPage = () => {
   const indexOfLastIssue = currentPage * issuesPerPage;
   const indexOfFirstIssue = indexOfLastIssue - issuesPerPage;
   const currentIssues = issues.slice(indexOfFirstIssue, indexOfLastIssue);
-
+ const [comments, setComments] = useState([]);
 
   const navigate = useNavigate();
 
@@ -63,7 +63,7 @@ const IssueFeedPage = () => {
       console.error("Error fetching issues:", err);
     }
   };
-
+  
   // Inside your component
   const handleStatusChange = (
     status,
@@ -112,7 +112,8 @@ const IssueFeedPage = () => {
 
   useEffect(() => {
     getIssueFeed();
-  }, [statusFilter, categoryFilter, sortBy]);
+    
+  }, [statusFilter, categoryFilter, sortBy,comments]);
   // console.log(issues[0]);
 
   return (

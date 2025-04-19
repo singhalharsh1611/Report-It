@@ -1,31 +1,41 @@
-import { Link } from "react-router-dom";
-import { useTheme } from "next-themes";
+import { Link, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { ShieldCheck, ArrowRight, Sun, Moon } from "lucide-react";
-import {ArrowLeft } from "lucide-react";
+import { ArrowLeft } from "lucide-react";
+import { useAuth } from "@/contexts/AuthContext";
+import { useEffect } from "react";
 
 const Index = () => {
-  const { theme, setTheme } = useTheme();
-
-  const toggleTheme = () => {
-    setTheme(theme === "dark" ? "light" : "dark");
-  };
+  const {user, loading} = useAuth();
+  const navigate = useNavigate();
+  // console.log(user);
+  useEffect(() => {
+    if (!loading && user) {
+      if (user.role === "moderator") {
+        navigate("/moderator/dashboard");
+      }
+    }
+  }, [user, loading, navigate]);
 
   return (
     <div className="min-h-screen flex flex-col bg-background">
       {/* Header */}
       <header className="border-b border-border/40 py-6">
         <div className="container max-w-7xl mx-auto px-4 flex items-center justify-between">
-          <div className="flex items-center space-x-2">
-            <ShieldCheck className="h-8 w-8 text-primary" />
-            <span className="font-bold text-xl">ReportIt</span>
-          </div>
+          <Link to="/moderator" className="flex items-center">
+            <div className="relative flex items-center">
+              <div className="h-8 w-8 flex items-center justify-center rounded-md bg-primary text-primary-foreground mr-2">
+                <span className="font-bold text-lg">R</span>
+              </div>
+              <h1 className="text-xl font-bold text-gradient">Report It</h1>
+            </div>
+          </Link>
           <Link to="/">
-                  <Button variant="outline" size="sm" className="gap-2">
-                    <ArrowLeft className="h-4 w-4" />
-                    <span className="hidden sm:inline">back</span>
-                  </Button>
-                </Link>
+            <Button variant="outline" size="sm" className="gap-2">
+              <ArrowLeft className="h-4 w-4" />
+              <span className="hidden sm:inline">Back</span>
+            </Button>
+          </Link>
         </div>
       </header>
 
@@ -37,15 +47,16 @@ const Index = () => {
               <ShieldCheck className="h-10 w-10 text-primary" />
             </div>
           </div>
-          
+
           <h1 className="text-4xl md:text-5xl font-bold tracking-tight mb-4">
-            ReportIt Moderator Control Center
+            Report It Moderator Control Center
           </h1>
-          
+
           <p className="text-xl text-muted-foreground mb-8 max-w-2xl mx-auto">
-            A powerful dashboard for moderators to review and manage reported issues on the ReportIt platform.
+            A powerful dashboard for moderators to review and manage reported
+            issues on the Report It platform.
           </p>
-          
+
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <Link to="/auth/login">
               <Button size="lg" className="w-full sm:w-auto">
@@ -65,8 +76,10 @@ const Index = () => {
       {/* Feature Section */}
       <section className="py-16 bg-muted/30">
         <div className="container max-w-7xl mx-auto px-4">
-          <h2 className="text-2xl font-bold text-center mb-12">Moderator Responsibilities</h2>
-          
+          <h2 className="text-2xl font-bold text-center mb-12">
+            Moderator Responsibilities
+          </h2>
+
           <div className="grid md:grid-cols-3 gap-8">
             <div className="bg-card rounded-lg p-6 shadow-sm border border-border/40">
               <div className="h-12 w-12 rounded-full bg-primary/10 flex items-center justify-center mb-4">
@@ -74,27 +87,32 @@ const Index = () => {
               </div>
               <h3 className="text-xl font-semibold mb-2">Review Reports</h3>
               <p className="text-muted-foreground">
-                Efficiently process user-submitted reports with our streamlined review interface.
+                Efficiently process user-submitted reports with our streamlined
+                review interface.
               </p>
             </div>
-            
+
             <div className="bg-card rounded-lg p-6 shadow-sm border border-border/40">
               <div className="h-12 w-12 rounded-full bg-green-500/10 flex items-center justify-center mb-4">
                 <ShieldCheck className="h-6 w-6 text-green-500" />
               </div>
               <h3 className="text-xl font-semibold mb-2">Verify Issues</h3>
               <p className="text-muted-foreground">
-                Validate legitimate reports and take appropriate actions to maintain platform safety.
+                Validate legitimate reports and take appropriate actions to
+                maintain platform safety.
               </p>
             </div>
-            
+
             <div className="bg-card rounded-lg p-6 shadow-sm border border-border/40">
               <div className="h-12 w-12 rounded-full bg-red-500/10 flex items-center justify-center mb-4">
                 <ShieldCheck className="h-6 w-6 text-red-500" />
               </div>
-              <h3 className="text-xl font-semibold mb-2">Reject False Reports</h3>
+              <h3 className="text-xl font-semibold mb-2">
+                Reject False Reports
+              </h3>
               <p className="text-muted-foreground">
-                Identify and dismiss inaccurate or malicious reports to ensure fair moderation.
+                Identify and dismiss inaccurate or malicious reports to ensure
+                fair moderation.
               </p>
             </div>
           </div>
@@ -104,7 +122,7 @@ const Index = () => {
       {/* Footer */}
       <footer className="border-t border-border/40 py-6">
         <div className="container max-w-7xl mx-auto px-4 text-center text-sm text-muted-foreground">
-          <p>&copy; 2025 ReportIt Moderator Dashboard. All rights reserved.</p>
+          <p>&copy; 2025 Report It Moderator Dashboard. All rights reserved.</p>
         </div>
       </footer>
     </div>
