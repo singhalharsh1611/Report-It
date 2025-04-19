@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import {
   Card,
   CardContent,
@@ -8,8 +8,26 @@ import {
 import { Button } from "@/components/ui/button";
 import { StatusBadge } from "@/components/ui/status-badge";
 import { MessageSquare, ArrowBigUp, Calendar, MapPin } from "lucide-react";
+import { Link } from "react-router-dom";
+import axios from "axios";
+const backend = import.meta.env.VITE_BACKEND_URL;
 
 export function IssueCard({ issue }) {
+  const[comments,setComments] =useState([]);
+  const fetchComments = async () => {
+    try {
+      const res = await axios.get(`${backend}/issue/${issue.id}/comments`);
+      if (res.data.success) {
+        console.log(res.data.comments);
+        setComments(res.data.comments);
+      }
+    } catch (err) {
+      console.error("Error fetching comments:", err);
+    } 
+  };
+  useEffect(()=>{
+    fetchComments();
+  },[comments])
   return (
     <Card className="overflow-hidden border border-white/10 bg-card hover:border-primary/20 transition-all duration-300">
       {issue.imageUrl && (
@@ -66,12 +84,18 @@ export function IssueCard({ issue }) {
             className="gap-1 text-muted-foreground hover:text-primary"
           >
             <MessageSquare className="h-4 w-4" />
-            <span>{issue.comments}</span>
+            <span>{comments.length}</span>
           </Button>
         </div>
-        <Button variant="secondary" size="sm">
+
+
+<Link to={`/issue/${issue.id}`} className="block hover:underline">
+<Button variant="secondary" size="sm">
           View Details
         </Button>
+</Link>
+
+        
       </CardFooter>
     </Card>
   );

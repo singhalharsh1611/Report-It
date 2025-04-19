@@ -114,6 +114,7 @@ import Dashboard from "./pages/moderator/Dashboard.jsx";
 import IssueDetail from "./pages/moderator/IssueDetail.jsx";
 import Signup from "./pages/moderator/Signup.jsx";
 import Login from "./pages/moderator/Login.jsx";
+import IssueDetailsPage from "./pages/IssueDetailsPage.jsx";
 
 const App = () => {
   return (
@@ -162,6 +163,14 @@ const App = () => {
               element={
                 <Layout>
                   <IssueFeedPage />
+                </Layout>
+              }
+            />
+            <Route
+              path="/issue/:id"
+              element={
+                <Layout>
+                  <IssueDetailsPage />
                 </Layout>
               }
             />
