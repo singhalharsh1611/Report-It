@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useContext } from "react";
 import { Outlet, Link, useNavigate, useLocation } from "react-router-dom";
 import { 
   LayoutDashboard, 
@@ -15,6 +15,7 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { Separator } from "@/components/ui/separator";
 import { useToast } from "@/hooks/use-toast";
 import { useIsMobile } from "@/hooks/use-mobile";
+import AuthContext, { useAuth } from "@/contexts/AuthContext";
 
 const ModeratorLayout = () => {
   const { toast } = useToast();
@@ -22,7 +23,15 @@ const ModeratorLayout = () => {
   const location = useLocation();
   const isMobile = useIsMobile();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
-  const [moderatorName, setModeratorName] = useState("Moderator");
+  const{user, loading, logout} = useContext(AuthContext);
+  const [moderatorName, setModeratorName] = useState("harsh");
+
+useEffect(() => {
+  if (!loading && user) {
+    console.log(user.name);
+    setModeratorName(user.name);
+  }
+}, [user, loading]);
 
   useEffect(() => {
     const checkAuth = () => {
@@ -41,11 +50,7 @@ const ModeratorLayout = () => {
   }, [navigate, toast]);
 
   const handleLogout = () => {
-    toast({
-      title: "Logged out",
-      description: "You have been successfully logged out",
-    });
-    navigate("/auth/login");
+    logout();
   };
 
   const navItems = [

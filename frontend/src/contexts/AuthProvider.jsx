@@ -42,7 +42,13 @@ export const AuthProvider = ({ children }) => {
         setToken(token);
         setUser(user);
         toast.success("Login sucessful");
-        navigate("/");
+        console.log(user.role);
+        if(user.role==="moderator"){
+          navigate("/moderator/dashboard");
+        }
+        else{
+          navigate("/");
+        }
       } else {
         toast.error("Invalid Credentials");
       }
@@ -52,14 +58,14 @@ export const AuthProvider = ({ children }) => {
     }
   };
 
-  const register = async (name, email, password) => {
+  const register = async (data) => {
     try {
-      const response = await axios.post(`${backendUrl}/auth/register`, {
-        name,
-        email,
-        password,
-      });
+      const response = await axios.post(`${backendUrl}/auth/register`, data);
       if (response.data.success) {
+        if (data.role === "moderator") {
+          toast.success(response.data.message);
+          return { waitingApproval: true };
+        }
         const { token, user } = response.data;
 
         localStorage.setItem("token", token);

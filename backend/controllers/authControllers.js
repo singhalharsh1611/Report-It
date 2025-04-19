@@ -42,6 +42,13 @@ export const register = async (req, res) => {
         panCard: (role === 'moderator') ? panCard : undefined
 
     });
+    if (role === "moderator") {
+        await newUser.save();
+        return res.status(201).json({
+            success: true,
+            message: "Moderator registered successfully. Waiting for admin approval.",
+        });
+    }
     try {
         const token = jwt.sign({ id: newUser._id }, process.env.JWT_SECRET, { expiresIn: '1d' });
         await newUser.save();
