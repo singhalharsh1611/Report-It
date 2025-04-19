@@ -1,22 +1,20 @@
-import React from "react";
+import React, { useContext } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { Bell, Menu, Search, User, LogIn, UserPlus, LogOut } from "lucide-react";
 import { Button } from "../ui/button";
+import AuthContext from "@/contexts/AuthContext";
 
 const Navbar = ({ toggleSidebar }) => {
   const location = useLocation();
   const navigate = useNavigate();
   const isLoggedIn = Boolean(localStorage.getItem("token")); //check status using token from local storage
-
+  const {logout}=useContext(AuthContext);
   const isAuthPage = ["/login", "/register"].includes(location.pathname);
 
   // Don't show navbar on auth pages
   if (isAuthPage) return null;
 
-  const handleLogout = () => {
-    localStorage.removeItem("token"); // Clear the token
-    navigate("/"); // Redirect to home page
-  };
+  
 
   return (
     <header className="fixed top-0 left-0 right-0 z-30 bg-gradient-to-r from-card to-card/70 backdrop-blur-md border-b border-white/5">
@@ -64,7 +62,7 @@ const Navbar = ({ toggleSidebar }) => {
                 variant="ghost"
                 size="sm"
                 className="gap-2"
-                onClick={handleLogout}
+                onClick={logout}
               >
                 <LogOut className="h-4 w-4" />
                 <span className="hidden sm:inline">Logout</span>

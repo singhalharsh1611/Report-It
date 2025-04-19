@@ -148,7 +148,7 @@ const HomePage = () => {
             Be part of the solution. Create an account to start reporting issues, 
             tracking updates, and helping make your community better.
           </p>
-          {(!user )?
+          {(!token)?
           <Link to="/register">
             <Button size="lg">
               Create Free Account 
