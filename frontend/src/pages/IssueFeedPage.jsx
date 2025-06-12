@@ -19,7 +19,6 @@ import { useNavigate } from 'react-router-dom';
 
 const backend = import.meta.env.VITE_BACKEND_URL;
 const IssueFeedPage = () => {
-  // const [issues] = useState(mockIssues);
   const [isFilterExpanded, setIsFilterExpanded] = useState(false);
   const [statusFilter, setStatusFilter] = useState([]);
   const [categoryFilter, setCategoryFilter] = useState("");
@@ -51,7 +50,7 @@ const IssueFeedPage = () => {
       }
 
       const response = await axios.get(
-        `${backend}/issue?${queryParams.toString()}`
+        `${backend}/api/issue?${queryParams.toString()}`
       );
 
       if (response.data.success) {
@@ -78,7 +77,7 @@ const IssueFeedPage = () => {
   };
 
   const renderStatusCheckboxes = (statusFilter, setStatusFilter) => {
-    const statuses = ["open", "in-progress", "review", "resolved", "rejected"];
+    const statuses = ["open", "in progress", "under review", "resolved", "rejected"];
 
     return statuses.map((status) => (
       <label key={status} className="flex items-center space-x-2 text-sm">
@@ -243,8 +242,8 @@ const IssueFeedPage = () => {
                     <div className="grid grid-cols-2 gap-2">
                       {[
                         "open",
-                        "in-progress",
-                        "review",
+                        "in progress",
+                        "under review",
                         "resolved",
                         "rejected",
                       ].map((status) => (

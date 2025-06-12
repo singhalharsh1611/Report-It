@@ -13,22 +13,19 @@ import {
 import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Separator } from "@/components/ui/separator";
-import { useToast } from "@/hooks/use-toast";
-import { useIsMobile } from "@/hooks/use-mobile";
 import AuthContext, { useAuth } from "@/contexts/AuthContext";
+import { toast } from "sonner";
 
 const ModeratorLayout = () => {
-  const { toast } = useToast();
   const navigate = useNavigate();
   const location = useLocation();
-  const isMobile = useIsMobile();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const{user, loading, logout} = useContext(AuthContext);
   const [moderatorName, setModeratorName] = useState("harsh");
 
 useEffect(() => {
   if (!loading && user) {
-    console.log(user.name);
+    // console.log(user.name);
     setModeratorName(user.name);
   }
 }, [user, loading]);
@@ -72,6 +69,8 @@ useEffect(() => {
     },
     
   ];
+
+  const isMobile = window.innerWidth < 768;
 
   const closeMobileMenu = () => {
     if (isMobile) {

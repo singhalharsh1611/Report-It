@@ -10,115 +10,6 @@ import { Button } from '@/components/ui/button';
 import { MessageSquare } from 'lucide-react';
 import axios from "axios";
 const backend = import.meta.env.VITE_BACKEND_URL;
-// exapmle data
-// const status = [
-//     { 
-//       id: '1',
-//       title: 'Broken Streetlight on SVBH',
-//       category: 'Street Light',
-//       reportedOn: '2023-04-12',
-//       currentStatus: 'open',
-//       timeline: [
-//         { 
-//           status: 'open', 
-//           date: '2023-04-12',
-//           comment: 'Report received and logged in our system.' 
-//         }
-//       ]
-//     },
-//     { 
-//       id: '2',
-//       title: 'Large Pothole on Teliyarganj Road',
-//       category: 'Roads',
-//       reportedOn: '2023-04-10',
-//       currentStatus: 'in-progress',
-//       timeline: [
-//         { 
-//           status: 'open', 
-//           date: '2023-04-10',
-//           comment: 'Report received and logged in our system.' 
-//         },
-//         { 
-//           status: 'in-progress', 
-//           date: '2023-04-11',
-//           comment: 'Repair team dispatched to inspect the pothole.' 
-//         }
-//       ]
-//     },
-//     { 
-//       id: '3',
-//       title: 'Overflowing Trash Bins',
-//       category: 'Garbage',
-//       reportedOn: '2023-04-08',
-//       currentStatus: 'review',
-//       timeline: [
-//         { 
-//           status: 'open', 
-//           date: '2023-04-08',
-//           comment: 'Report received and logged in our system.' 
-//         },
-//         { 
-//           status: 'in-progress', 
-//           date: '2023-04-09',
-//           comment: 'Sanitation crew notified to clean the area.' 
-//         },
-//         { 
-//           status: 'review', 
-//           date: '2023-04-10',
-//           comment: 'Cleanup completed, under review by local authority.' 
-//         }
-//       ]
-//     },
-//     { 
-//       id: '4',
-//       title: 'Fallen Tree',
-//       category: 'Others',
-//       reportedOn: '2023-04-02',
-//       currentStatus: 'resolved',
-//       timeline: [
-//         { 
-//           status: 'open', 
-//           date: '2023-04-02',
-//           comment: 'Report received and logged in our system.' 
-//         },
-//         { 
-//           status: 'in-progress', 
-//           date: '2023-04-03',
-//           comment: 'Clearance crew dispatched to the location.' 
-//         },
-//         { 
-//           status: 'review', 
-//           date: '2023-04-04',
-//           comment: 'Tree removal confirmed. Reviewing safety compliance.' 
-//         },
-//         { 
-//           status: 'resolved', 
-//           date: '2023-04-05',
-//           comment: 'Issue resolved. Area cleared for public access.' 
-//         }
-//       ]
-//     },
-//     { 
-//       id: '5',
-//       title: 'Malicious Water',
-//       category: 'Water',
-//       reportedOn: '2023-04-01',
-//       currentStatus: 'in-progress',
-//       timeline: [
-//         { 
-//           status: 'open', 
-//           date: '2023-04-01',
-//           comment: 'Water quality complaint received.' 
-//         },
-//         { 
-//           status: 'in-progress', 
-//           date: '2023-04-03',
-//           comment: 'Water samples collected and testing underway.' 
-//         }
-//       ]
-//     }
-//   ];
-
 
 const StatusTrackingPage = () => {
   const [statusTimeline, setStatusTimeline] = useState([]);
@@ -141,7 +32,7 @@ const StatusTrackingPage = () => {
 
   const getIssueFeed = async () => {
     try {
-      const response = await axios.get(`${backend}/issue`);
+      const response = await axios.get(`${backend}/api/issue`);
 
       if (response.data.success) {
         const processedIssues = response.data.issues.map(issue => {

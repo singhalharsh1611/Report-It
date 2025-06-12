@@ -22,6 +22,7 @@ import IssueDetail from "./pages/moderator/IssueDetail.jsx";
 import Signup from "./pages/moderator/Signup.jsx";
 import Login from "./pages/moderator/Login.jsx";
 import IssueDetailsPage from "./pages/IssueDetailsPage.jsx";
+import IssueCard from "./components/moderator/IssueCard.jsx";
 
 const App = () => {
   return (

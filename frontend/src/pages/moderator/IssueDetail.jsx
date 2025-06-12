@@ -10,7 +10,7 @@ import {
   CheckCircle2,
   XCircle,
   Send,
-  User
+  User,
 } from "lucide-react";
 import {
   Card,
@@ -33,114 +33,38 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { useToast } from "@/hooks/use-toast";
+import { toast } from "sonner";
 import { Skeleton } from "@/components/ui/skeleton";
 import { cn } from "@/lib/utils";
-
-// Mock issue data for demonstration
-const MOCK_ISSUES = [
-  {
-    id: "1",
-    title: "Inappropriate content in public forum",
-    description: "A user has posted offensive content that violates community guidelines in the tech forum...",
-    category: "Content Violation",
-    status: "pending",
-    reporterEmail: "user1@example.com",
-    submissionDate: "2023-04-15T10:30:00Z",
-    imageUrl: "https://picsum.photos/seed/issue1/600/400",
-    reporterName: "John Smith",
-    reporterStatus: "Verified User",
-    comments: [
-      {
-        id: "c1",
-        author: "admin",
-        text: "Initial review shows this requires immediate attention.",
-        timestamp: "2023-04-15T11:15:00Z",
-      },
-    ],
-  },
-  {
-    id: "2",
-    title: "Spam accounts creating multiple posts",
-    description: "Multiple bot accounts are flooding the photography section with spam links...",
-    category: "Spam",
-    status: "verified",
-    reporterEmail: "user2@example.com",
-    submissionDate: "2023-04-16T09:15:00Z",
-    imageUrl: null,
-    reporterName: "Alex Johnson",
-    reporterStatus: "Moderator",
-    comments: [],
-  },
-  {
-    id: "3",
-    title: "Harassment of minority users",
-    description: "A group of users are systematically harassing minority members in the gaming community...",
-    category: "Harassment",
-    status: "pending",
-    reporterEmail: "user3@example.com",
-    submissionDate: "2023-04-17T14:45:00Z",
-    imageUrl: "https://picsum.photos/seed/issue3/600/400",
-    reporterName: "Sarah Williams",
-    reporterStatus: "Trusted User",
-    comments: [],
-  },
-  {
-    id: "4",
-    title: "False information about COVID-19",
-    description: "User spreading misinformation about COVID-19 vaccines in the health forum...",
-    category: "Misinformation",
-    status: "rejected",
-    reporterEmail: "user4@example.com",
-    submissionDate: "2023-04-18T11:20:00Z",
-    imageUrl: null,
-    reporterName: "Michael Brown",
-    reporterStatus: "New User",
-    comments: [],
-  },
-  {
-    id: "5",
-    title: "Copyright infringement in art section",
-    description: "User has uploaded copyrighted artwork...",
-    category: "Copyright",
-    status: "verified",
-    reporterEmail: "user5@example.com",
-    submissionDate: "2023-04-19T16:05:00Z",
-    imageUrl: "https://picsum.photos/seed/issue5/600/400",
-    reporterName: "Emily Davis",
-    reporterStatus: "Verified User",
-    comments: [
-      {
-        id: "c2",
-        author: "legal-team",
-        text: "We've verified this is indeed a copyright violation...",
-        timestamp: "2023-04-19T17:30:00Z",
-      },
-    ],
-  },
-];
+import axios from "axios";
 
 const IssueDetail = () => {
   const { issueId } = useParams();
   const navigate = useNavigate();
-  const { toast } = useToast();
-
+  const token = localStorage.getItem("token");
   const [isLoading, setIsLoading] = useState(true);
-  const [issue, setIssue] = useState(null);
+  const [issue, setIssue] = useState();
   const [status, setStatus] = useState("");
-  const [comment, setComment] = useState("");
+  const [newComment, setNewComment] = useState("");
   const [comments, setComments] = useState([]);
+  const [commentsLoading, setCommentsLoading] = useState(true);
+  const [submitting, setSubmitting] = useState(false);
+
+  const backend = import.meta.env.VITE_BACKEND_URL;
 
   useEffect(() => {
     const fetchIssue = async () => {
       setIsLoading(true);
       try {
-        await new Promise((resolve) => setTimeout(resolve, 1000));
-        const foundIssue = MOCK_ISSUES.find((i) => i.id === issueId);
+        const response = await axios.get(`${backend}/api/issue/${issueId}`);
+        const foundIssue = response.data.issue;
+        // console.log(foundIssue);
+
         if (foundIssue) {
           setIssue(foundIssue);
           setStatus(foundIssue.status);
           setComments(foundIssue.comments || []);
+          await fetchComments();
         } else {
           toast({
             title: "Issue not found",
@@ -161,7 +85,9 @@ const IssueDetail = () => {
       }
     };
 
-    if (issueId) fetchIssue();
+    if (issueId) {
+      fetchIssue();
+    }
   }, [issueId, navigate, toast]);
 
   const handleStatusChange = (newStatus) => {
@@ -172,23 +98,52 @@ const IssueDetail = () => {
     });
   };
 
-  const handleCommentSubmit = () => {
-    if (!comment.trim()) return;
+  //comments
+  const fetchComments = async () => {
+    try {
+      const res = await axios.get(`${backend}/api/issue/${issueId}/comments`);
+      if (res.data.success) {
+        console.log(res.data.comments);
+        setComments(res.data.comments);
+      }
+    } catch (err) {
+      console.error("Error fetching comments:", err);
+    } finally {
+      setCommentsLoading(false);
+    }
+  };
 
-    const newComment = {
-      id: `c${comments.length + 1}`,
-      author: "moderator",
-      text: comment,
-      timestamp: new Date().toISOString(),
-    };
+  const handleCommentSubmit = async () => {
+    if (!newComment.trim()) return;
+    if (token === null) {
+      toast.error("Please login first");
+      navigate("/login");
+    }
+    setSubmitting(true);
+    try {
+      const res = await axios.post(
+        `${backend}/api/issue/${issueId}/comments`,
+        { text: newComment },
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
 
-    setComments([...comments, newComment]);
-    setComment("");
-
-    toast({
-      title: "Comment added",
-      description: "Your comment has been added to the issue.",
-    });
+      if (res.data.success) {
+        // Add new comment to top
+        setComments((prev) => [res.data.comment, ...prev]);
+        setNewComment("");
+        fetchComments();
+      } else {
+        console.error(res.data.message || "Failed to add comment");
+      }
+    } catch (err) {
+      console.error("Error posting comment:", err);
+    } finally {
+      setSubmitting(false);
+    }
   };
 
   const getStatusIcon = (status) => {
@@ -250,8 +205,8 @@ const IssueDetail = () => {
     );
   }
 
-  const formattedDate = format(new Date(issue.submissionDate), "PPP");
-  const formattedTime = format(new Date(issue.submissionDate), "p");
+  const formattedDate = format(new Date(issue.createdAt), "PPP");
+  const formattedTime = format(new Date(issue.createdAt), "p");
 
   return (
     <div className="space-y-6 animate-fade-in">
@@ -276,7 +231,9 @@ const IssueDetail = () => {
           <CardDescription className="flex flex-wrap items-center gap-3 text-sm">
             <div className="flex items-center">
               <Calendar className="mr-1 h-4 w-4" />
-              <span>{formattedDate} at {formattedTime}</span>
+              <span>
+                {formattedDate} at {formattedTime}
+              </span>
             </div>
             <div className="flex items-center">
               <Tag className="mr-1 h-4 w-4" />
@@ -287,12 +244,14 @@ const IssueDetail = () => {
         <CardContent className="space-y-6">
           <div className="space-y-4">
             <h3 className="text-lg font-medium">Issue Description</h3>
-            <p className="text-foreground/90 whitespace-pre-line">{issue.description}</p>
+            <p className="text-foreground/90 whitespace-pre-line">
+              {issue.description}
+            </p>
 
-            {issue.imageUrl && (
+            {issue.imageURL && (
               <div className="mt-4 rounded-md overflow-hidden border border-border">
                 <img
-                  src={issue.imageUrl}
+                  src={issue.imageURL}
                   alt={`Evidence for issue ${issue.id}`}
                   className="w-full h-auto max-h-96 object-contain"
                 />
@@ -310,14 +269,14 @@ const IssueDetail = () => {
               </div>
               <div className="space-y-1">
                 <div className="flex items-center">
-                  <p className="font-medium">{issue.reporterName}</p>
+                  <p className="font-medium">{issue.createdBy.name}</p>
                   <Badge variant="outline" className="ml-2 text-xs">
-                    {issue.reporterStatus}
+                    {issue.createdBy.role}
                   </Badge>
                 </div>
                 <p className="text-sm text-muted-foreground flex items-center">
                   <Mail className="mr-1 h-3 w-3" />
-                  {issue.reporterEmail}
+                  {issue.createdBy.email}
                 </p>
               </div>
             </div>
@@ -329,7 +288,8 @@ const IssueDetail = () => {
             <div className="flex items-center justify-between">
               <h3 className="text-lg font-medium">Comments & Notes</h3>
               <span className="text-sm text-muted-foreground">
-                {comments.length} {comments.length === 1 ? "comment" : "comments"}
+                {comments.length}{" "}
+                {comments.length === 1 ? "comment" : "comments"}
               </span>
             </div>
 
@@ -340,14 +300,17 @@ const IssueDetail = () => {
             ) : (
               <div className="space-y-4">
                 {comments.map((c) => (
-                  <div key={c.id} className="bg-secondary/30 rounded-lg p-4 space-y-2">
+                  <div
+                    key={c._id}
+                    className="bg-secondary/30 rounded-lg p-4 space-y-2"
+                  >
                     <div className="flex items-center justify-between">
-                      <p className="font-medium capitalize">{c.author}</p>
+                      <p className="font-medium capitalize">{c.user.name}</p>
                       <span className="text-xs text-muted-foreground">
-                        {format(new Date(c.timestamp), "PPp")}
+                        {format(new Date(c.createdAt), "PPp")}
                       </span>
                     </div>
-                    <p className="text-foreground/90">{c.text}</p>
+                    <p className="text-foreground/90">{c.content}</p>
                   </div>
                 ))}
               </div>
@@ -356,12 +319,15 @@ const IssueDetail = () => {
             <div className="space-y-3">
               <Textarea
                 placeholder="Add a comment or note about this issue..."
-                value={comment}
-                onChange={(e) => setComment(e.target.value)}
+                value={newComment}
+                onChange={(e) => setNewComment(e.target.value)}
                 rows={3}
               />
               <div className="flex justify-end">
-                <Button onClick={handleCommentSubmit} disabled={!comment.trim()}>
+                <Button
+                  onClick={handleCommentSubmit}
+                  disabled={!newComment.trim()}
+                >
                   <Send className="mr-2 h-4 w-4" />
                   Add Comment
                 </Button>
@@ -378,8 +344,8 @@ const IssueDetail = () => {
               <SelectContent>
                 <SelectGroup>
                   <SelectLabel>Status</SelectLabel>
-                  <SelectItem value="pending">Pending</SelectItem>
-                  <SelectItem value="verified">Verified</SelectItem>
+                  <SelectItem value="under review">Pending</SelectItem>
+                  <SelectItem value="in progress">Verified</SelectItem>
                   <SelectItem value="rejected">Rejected</SelectItem>
                 </SelectGroup>
               </SelectContent>
@@ -387,7 +353,11 @@ const IssueDetail = () => {
           </div>
 
           <div className="flex gap-3 w-full sm:w-auto">
-            <Button variant="outline" onClick={() => navigate(-1)} className="flex-1 sm:flex-none">
+            <Button
+              variant="outline"
+              onClick={() => navigate(-1)}
+              className="flex-1 sm:flex-none"
+            >
               Cancel
             </Button>
             <Button className="flex-1 sm:flex-none">Save Changes</Button>

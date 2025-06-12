@@ -65,7 +65,9 @@ const ReportIssuePage = () => {
               setAddress(`Lat: ${latitude}, Lng: ${longitude}`);
               toast.error("Unable to fetch address");
             }
-          } catch (error) {}
+          } catch (error) {
+            toast.error(error);
+          }
         },
         (error) => {
           toast.error("Unable to fetch location");
@@ -115,7 +117,7 @@ const ReportIssuePage = () => {
     setIsSubmitting(true);
 
     try {
-      await axios.post(`${backendUrl}/issue/`, formData, {
+      await axios.post(`${backendUrl}/api/issue/`, formData, {
         headers: {
           "Content-Type": "multipart/form-data",
           Authorization: `Bearer ${token}`,

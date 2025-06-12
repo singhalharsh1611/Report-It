@@ -17,7 +17,7 @@ export const AuthProvider = ({ children }) => {
     if (!token) return;
 
     try {
-      const response = await axios.get(`${backendUrl}/users/me`, {
+      const response = await axios.get(`${backendUrl}/api/users/me`, {
         headers: { Authorization: `Bearer ${token}` },
       });
 
@@ -30,7 +30,7 @@ export const AuthProvider = ({ children }) => {
 
   const login = async (email, password) => {
     try {
-      const response = await axios.post(`${backendUrl}/auth/login`, {
+      const response = await axios.post(`${backendUrl}/api/auth/login`, {
         email,
         password,
       });
@@ -60,7 +60,7 @@ export const AuthProvider = ({ children }) => {
 
   const register = async (data) => {
     try {
-      const response = await axios.post(`${backendUrl}/auth/register`, data);
+      const response = await axios.post(`${backendUrl}/api/auth/register`, data);
       if (response.data.success) {
         if (data.role === "moderator") {
           toast.success(response.data.message);

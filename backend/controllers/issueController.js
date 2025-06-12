@@ -72,7 +72,7 @@ export const getAllIssues = async (req, res) => {
 export const getIssueById = async (req, res) => {
   try {
     const issue = await Issue.findById(req.params.id)
-      .populate("createdBy", "name role")
+      .populate("createdBy", "name role email")
       .populate("verifiedBy", "name");
 
     if (!issue) return res.status(404).json({ success: false, message: "Issue not found" });

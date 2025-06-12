@@ -16,7 +16,7 @@ export function IssueCard({ issue }) {
   const[comments,setComments] =useState([]);
   const fetchComments = async () => {
     try {
-      const res = await axios.get(`${backend}/issue/${issue.id}/comments`);
+      const res = await axios.get(`${backend}/api/issue/${issue.id}/comments`);
       if (res.data.success) {
         console.log(res.data.comments);
         setComments(res.data.comments);
@@ -27,7 +27,7 @@ export function IssueCard({ issue }) {
   };
   useEffect(()=>{
     fetchComments();
-  },[comments])
+  },[issue._id])
   return (
     <Card className="overflow-hidden border border-white/10 bg-card hover:border-primary/20 transition-all duration-300">
       {issue.imageUrl && (

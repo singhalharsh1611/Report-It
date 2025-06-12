@@ -6,66 +6,10 @@ import { Skeleton } from "@/components/ui/skeleton";
 import IssueFeed from "@/components/moderator/IssueFeed";
 import StatsSummary from "@/components/moderator/StatsSummary";
 import { useAuth } from "@/contexts/AuthContext";
+import axios from "axios";
+import { toast } from "sonner";
 
-// Mock data for issues
-const MOCK_ISSUES = [
-  {
-    id: "1",
-    title: "Inappropriate content in public forum",
-    description:
-      "A user has posted offensive content that violates community guidelines in the tech forum.",
-    category: "Content Violation",
-    status: "pending",
-    reporterEmail: "user1@example.com",
-    submissionDate: "2023-04-15T10:30:00Z",
-    imageUrl: "https://picsum.photos/seed/issue1/300/200",
-  },
-  {
-    id: "2",
-    title: "Spam accounts creating multiple posts",
-    description:
-      "Multiple bot accounts are flooding the photography section with spam links.",
-    category: "Spam",
-    status: "verified",
-    reporterEmail: "user2@example.com",
-    submissionDate: "2023-04-16T09:15:00Z",
-    imageUrl: null,
-  },
-  {
-    id: "3",
-    title: "Harassment of minority users",
-    description:
-      "A group of users are systematically harassing minority members in the gaming community.",
-    category: "Harassment",
-    status: "pending",
-    reporterEmail: "user3@example.com",
-    submissionDate: "2023-04-17T14:45:00Z",
-    imageUrl: "https://picsum.photos/seed/issue3/300/200",
-  },
-  {
-    id: "4",
-    title: "False information about COVID-19",
-    description:
-      "User spreading misinformation about COVID-19 vaccines in the health forum.",
-    category: "Misinformation",
-    status: "rejected",
-    reporterEmail: "user4@example.com",
-    submissionDate: "2023-04-18T11:20:00Z",
-    imageUrl: null,
-  },
-  {
-    id: "5",
-    title: "Copyright infringement in art section",
-    description:
-      "User has uploaded copyrighted artwork without attribution or permission.",
-    category: "Copyright",
-    status: "verified",
-    reporterEmail: "user5@example.com",
-    submissionDate: "2023-04-19T16:05:00Z",
-    imageUrl: "https://picsum.photos/seed/issue5/300/200",
-  },
-];
-
+const backend = import.meta.env.VITE_BACKEND_URL; 
 const Dashboard = () => {
   const location = useLocation();
   const navigate = useNavigate();
@@ -107,28 +51,22 @@ const Dashboard = () => {
     const fetchIssues = async () => {
       setIsLoading(true);
       try {
-        await new Promise((resolve) => setTimeout(resolve, 1000));
-        setIssues(MOCK_ISSUES);
-
-        const totalReviewed = MOCK_ISSUES.filter(
-          (issue) => issue.status !== "pending"
-        ).length;
-        const verified = MOCK_ISSUES.filter(
-          (issue) => issue.status === "verified"
-        ).length;
-        const rejected = MOCK_ISSUES.filter(
-          (issue) => issue.status === "rejected"
-        ).length;
-        const pending = MOCK_ISSUES.filter(
-          (issue) => issue.status === "pending"
-        ).length;
+        const response = await axios.get(`${backend}/api/issue`);
+        const allIssues = response.data.issues;
+        const totalReviewed = allIssues.length;
+        const verified = allIssues.filter((issue) => issue.status !== "open").length;
+        const rejected = allIssues.filter((issue) => issue.status === "rejected").length;
+        const pendingIssues = allIssues.filter((issue) => (issue.status === "open" || issue.status==="under review"));
+        const pending = pendingIssues.length;
+        
 
         setStats({
-          totalReviewed,
-          verified,
-          rejected,
-          pending,
+          totalReviewed, verified, rejected, pending
         });
+
+        setIssues(allIssues);
+
+
       } catch (error) {
         console.error("Error fetching issues:", error);
       } finally {
@@ -139,31 +77,54 @@ const Dashboard = () => {
     fetchIssues();
   }, []);
 
-  const handleStatusChange = (issueId, newStatus) => {
-    const updatedIssues = issues.map((issue) =>
-      issue.id === issueId ? { ...issue, status: newStatus } : issue
-    );
-    setIssues(updatedIssues);
+  const handleStatusChange = async (issueId, newStatus) => {
+    try {
+      await axios.patch(
+        `${backend}/api/issue/${issueId}/status`,
+        { status: newStatus },
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+      const updatedIssues = issues.map((issue) => {
+        if (issue._id === issueId) {
+          // Return a new issue object with the updated status
+          return {
+            ...issue,
+            status: newStatus,
+          };
+        }
 
-    const totalReviewed = updatedIssues.filter(
-      (issue) => issue.status !== "pending"
-    ).length;
-    const verified = updatedIssues.filter(
-      (issue) => issue.status === "verified"
-    ).length;
-    const rejected = updatedIssues.filter(
-      (issue) => issue.status === "rejected"
-    ).length;
-    const pending = updatedIssues.filter(
-      (issue) => issue.status === "pending"
-    ).length;
+        // For all other issues, return them as-is
+        return issue;
+      });
 
-    setStats({
-      totalReviewed,
-      verified,
-      rejected,
-      pending,
-    });
+      setIssues(updatedIssues);
+
+      const totalReviewed = updatedIssues.filter(
+        (issue) => issue.status !== "open"
+      ).length;
+      const verified = updatedIssues.filter(
+        (issue) => (issue.status === "in progress" || issue.status === "resolved") 
+      ).length;
+      const rejected = updatedIssues.filter(
+        (issue) => issue.status === "rejected"
+      ).length;
+      const pending = updatedIssues.filter(
+        (issue) => (issue.status === "open" || issue.status === "under review")
+      ).length;
+
+      setStats({ totalReviewed, verified, rejected, pending });
+      
+    } catch (error) {
+      console.log(error);
+      toast.error("Failed to change status");
+    }
+    
+
+
   };
 
   return (
@@ -187,11 +148,12 @@ const Dashboard = () => {
         <TabsList>
           <TabsTrigger value="overview">Overview</TabsTrigger>
           <TabsTrigger value="issues">Issues</TabsTrigger>
-          
+
           <TabsTrigger value="notifications">Notifications</TabsTrigger>
-          
         </TabsList>
-        <p className="text-3xl font-bold tracking-tight">Summary of All Moderators</p>
+        <p className="text-3xl font-bold tracking-tight">
+          Summary of All Moderators
+        </p>
 
         <TabsContent value="overview" className="space-y-6">
           {isLoading ? (
@@ -210,7 +172,7 @@ const Dashboard = () => {
                 <div className="space-y-4">
                   <h2 className="text-xl font-semibold">Recent Issues</h2>
                   <IssueFeed
-                    issues={issues.slice(0, 3)}
+                    issues={issues.filter((issue) => issue.status !== "open" && issue.status!="under review").slice(0, 6)}
                     onStatusChange={handleStatusChange}
                     isCompact={true}
                   />
@@ -220,8 +182,7 @@ const Dashboard = () => {
                   <h2 className="text-xl font-semibold">Pending Reviews</h2>
                   <IssueFeed
                     issues={issues
-                      .filter((issue) => issue.status === "pending")
-                      .slice(0, 3)}
+                      .filter((issue) => (issue.status === "open" || issue.status==="under review"))}
                     onStatusChange={handleStatusChange}
                     isCompact={true}
                   />
@@ -248,20 +209,6 @@ const Dashboard = () => {
           )}
         </TabsContent>
 
-        <TabsContent value="users" className="space-y-4">
-          <h2 className="text-xl font-semibold">User Management</h2>
-          <p className="text-muted-foreground">
-            This section will allow you to manage users, view user reports, and
-            take actions on user accounts.
-          </p>
-          <div className="p-8 text-center border rounded-lg border-dashed">
-            <h3 className="text-lg font-medium">User Management Coming Soon</h3>
-            <p className="text-sm text-muted-foreground mt-2">
-              This feature is currently under development.
-            </p>
-          </div>
-        </TabsContent>
-
         <TabsContent value="notifications" className="space-y-4">
           <h2 className="text-xl font-semibold">Notifications</h2>
           <p className="text-muted-foreground">
@@ -276,19 +223,7 @@ const Dashboard = () => {
             </p>
           </div>
         </TabsContent>
-
-        <TabsContent value="settings" className="space-y-4">
-          <h2 className="text-xl font-semibold">Moderator Settings</h2>
-          <p className="text-muted-foreground">
-            Manage your moderator account settings and preferences.
-          </p>
-          <div className="p-8 text-center border rounded-lg border-dashed">
-            <h3 className="text-lg font-medium">Settings Panel Coming Soon</h3>
-            <p className="text-sm text-muted-foreground mt-2">
-              This feature is currently under development.
-            </p>
-          </div>
-        </TabsContent>
+        
       </Tabs>
     </div>
   );

@@ -7,13 +7,13 @@ const statusConfig = {
     label: 'Open',
     className: 'bg-status-open/20 text-status-open ring-1 ring-status-open/30', // Add appropriate color classes
   },
-  'in-progress': {
+  'in progress': {
     label: 'In Progress',
-    className: 'bg-status-in-progress/20 text-status-in-progress ring-1 ring-status-in-progress/30', // Update with colors
+    className: 'bg-status-inProgress/20 text-status-in-progress ring-1 ring-status-in-progress/30', // Update with colors
   },
-  'review': {
+  'under review': {
     label: 'Under Review',
-    className: 'bg-status-review/20 text-status-review ring-1 ring-status-review/30', // Update with colors
+    className: 'bg-status-underReview/20 text-status-review ring-1 ring-status-review/30', // Update with colors
   },
   'rejected': {
     label: 'Rejected',

@@ -89,7 +89,7 @@ const MapPage = () => {
   useEffect(() => {
     const fetchIssues = async () => {
       try {
-        const response = await axios.get(`${backendUrl}/issue`);
+        const response = await axios.get(`${backendUrl}/api/issue`);
         // console.log(response.data.issues);
         const selectedLocations = [];
         for (let i = 0; i < response.data.issues.length; i++) {

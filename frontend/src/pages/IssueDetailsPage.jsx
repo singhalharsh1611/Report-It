@@ -28,7 +28,7 @@ const navigate = useNavigate();
 
   const fetchIssueDetails = async () => {
     try {
-      const res = await axios.get(`${backend}/issue/${id}`);
+      const res = await axios.get(`${backend}/api/issue/${id}`);
       if (res.data.success) {
         setIssue(res.data.issue);
       } else {
@@ -43,7 +43,7 @@ const navigate = useNavigate();
 
   const fetchComments = async () => {
     try {
-      const res = await axios.get(`${backend}/issue/${id}/comments`);
+      const res = await axios.get(`${backend}/api/issue/${id}/comments`);
       if (res.data.success) {
         console.log(res.data.comments);
         setComments(res.data.comments);
@@ -58,13 +58,13 @@ const navigate = useNavigate();
   const handleAddComment = async () => {
     if (!newComment.trim()) return;
     if(token===null){
-        toast.error("plz login first");
+        toast.error("Please login first");
         navigate("/login");
     }
     setSubmitting(true);
     try {
       const res = await axios.post(
-        `${backend}/issue/${id}/comments`,
+        `${backend}/api/issue/${id}/comments`,
         { text: newComment },
         {
           headers: {

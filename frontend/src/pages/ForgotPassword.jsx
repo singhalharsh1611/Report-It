@@ -26,7 +26,7 @@ const ForgotPassword = () => {
   const handleSendOTP = async () => {
     setLoading(true);
     try {
-      const response = await axios.post(`${backendUrl}/auth/forgot-password`, {
+      const response = await axios.post(`${backendUrl}/api/auth/forgot-password`, {
         email,
       });
       if (response.data.success) {
@@ -53,7 +53,7 @@ const ForgotPassword = () => {
   const handleResetPassword = async () => {
     setLoading(true);
     try {
-      const response = await axios.post(`${backendUrl}/auth/update-password`, {
+      const response = await axios.post(`${backendUrl}/api/auth/update-password`, {
         email,
         otp,
         password: newPassword,
