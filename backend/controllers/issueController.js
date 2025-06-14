@@ -1,5 +1,7 @@
 import cloudinary from "../config/cloudinary.js";
 import Issue from "../models/issueModel.js";
+import {io} from "../server.js";
+import { getIO } from "../config/socket.js"; 
 
 // Create a new issue
 export const createIssue = async (req, res) => {
@@ -42,6 +44,25 @@ export const createIssue = async (req, res) => {
     const newIssue = new Issue(newForm);
 
     await newIssue.save();
+
+    // emit the issue to connected sockets in real time
+    const io = getIO();
+    io.emit("new-issue", {
+      _id: newIssue._id,
+      title: newIssue.title,
+      description: newIssue.description,
+      imageURL: newIssue.imageURL,
+      location: newIssue.location,
+      category: newIssue.category,
+      createdBy: {
+        _id: req.user._id,
+        name: req.user.name,
+        role: req.user.role,
+      },
+      status: newIssue.status,
+      createdAt: newIssue.createdAt,
+    });
+
     res.status(201).json({ success: true, message: "New issue Added" });
   } catch (err) {
     res.status(500).json({ error: "Failed to create issue" });

@@ -3,6 +3,7 @@ import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
 import AuthContext from "./AuthContext.js";
+import socket from "../socket/socket.js"
 
 const backendUrl = import.meta.env.VITE_BACKEND_URL;
 
@@ -96,6 +97,31 @@ export const AuthProvider = ({ children }) => {
     };
     fetchUser();
   }, [token]);
+
+  useEffect(() => {
+    if (user && (user.role === "admin" || user.role === "moderator")) {
+      socket.connect();
+      // console.log("Socket connected");
+
+      socket.on("connect_error", (err) => {
+        console.error("Socket connection error:", err.message);
+      });
+
+      // Optional: Listen to test messages
+      // socket.on("new-issue", (data) => {
+      //   console.log("New issue received:", data);
+      // });
+
+      return () => {
+      socket.off("connect");
+      socket.off("connect_error");
+      socket.off("new-issue");
+      socket.disconnect();
+      // console.log("Socket disconnected");
+    };
+    }
+  }, [user]);
+
 
   return (
     <AuthContext.Provider

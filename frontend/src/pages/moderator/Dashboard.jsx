@@ -8,6 +8,7 @@ import StatsSummary from "@/components/moderator/StatsSummary";
 import { useAuth } from "@/contexts/AuthContext";
 import axios from "axios";
 import { toast } from "sonner";
+import socket from "../../socket/socket"
 
 const backend = import.meta.env.VITE_BACKEND_URL; 
 const Dashboard = () => {
@@ -75,7 +76,28 @@ const Dashboard = () => {
     };
 
     fetchIssues();
-  }, []);
+
+    //for real time issues updates
+    if (!socket.connected) {
+    socket.connect();
+  }
+    
+    const onNewIssue = (newIssue) => {
+      // console.log("New issue received:", newIssue);
+      toast.alert("🚨 New issue reported");
+      setIssues((prev) => [newIssue, ...prev]);
+      setStats((prevStats) => ({
+        ...prevStats,
+        pending: prevStats.pending + 1,
+      }));
+    };
+
+    socket.on("new-issue", onNewIssue);
+
+    return () => {
+      socket.off("new-issue", onNewIssue);
+    };
+  }, [user, token]);
 
   const handleStatusChange = async (issueId, newStatus) => {
     try {
