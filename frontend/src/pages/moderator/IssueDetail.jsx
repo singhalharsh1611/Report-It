@@ -11,6 +11,7 @@ import {
   XCircle,
   Send,
   User,
+  Loader2,
 } from "lucide-react";
 import {
   Card,
@@ -90,12 +91,30 @@ const IssueDetail = () => {
     }
   }, [issueId, navigate, toast]);
 
-  const handleStatusChange = (newStatus) => {
+  const handleStatusChange = async(newStatus) => {
+
+    // console.log(newStatus);
     setStatus(newStatus);
-    toast({
-      title: "Status updated",
-      description: `Issue status changed to ${newStatus}.`,
-    });
+
+    try {
+      await axios.patch(`${backend}/api/issue/${issueId}/status`, {status: newStatus}, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        })
+
+      toast.success("Status Updated");
+    } catch (error) {
+      toast.error(`Error while updating the status: ${error}`);
+    }
+
+
+
+    // setStatus(newStatus);
+    // toast({
+    //   title: "Status updated",
+    //   // description: `Issue status changed to ${newStatus}.`,
+    // });
   };
 
   //comments
@@ -103,7 +122,7 @@ const IssueDetail = () => {
     try {
       const res = await axios.get(`${backend}/api/issue/${issueId}/comments`);
       if (res.data.success) {
-        console.log(res.data.comments);
+        // console.log(res.data.comments);
         setComments(res.data.comments);
       }
     } catch (err) {
@@ -322,14 +341,24 @@ const IssueDetail = () => {
                 value={newComment}
                 onChange={(e) => setNewComment(e.target.value)}
                 rows={3}
+                disabled={submitting}
               />
               <div className="flex justify-end">
                 <Button
                   onClick={handleCommentSubmit}
-                  disabled={!newComment.trim()}
+                  disabled={!newComment.trim() || submitting}
                 >
-                  <Send className="mr-2 h-4 w-4" />
-                  Add Comment
+                  {submitting ? (
+                    <>
+                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                      Posting...
+                    </>
+                  ) : (
+                    <>
+                      <Send className="mr-2 h-4 w-4" />
+                      Add Comment
+                    </>
+                  )}
                 </Button>
               </div>
             </div>

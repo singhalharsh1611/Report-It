@@ -79,9 +79,9 @@ useEffect(() => {
   };
 
   return (
-    <div className="flex min-h-screen flex-col md:flex-row bg-background text-foreground">
+    <div className="flex h-screen flex-col md:flex-row bg-background text-foreground overflow-hidden">
       {/* Mobile Header */}
-      <div className="md:hidden bg-sidebar border-b border-sidebar-border flex items-center justify-between p-4">
+      <div className="md:hidden bg-sidebar border-b border-sidebar-border flex items-center justify-between p-4 z-50">
         <div className="flex items-center space-x-2">
           <ShieldAlert className="h-6 w-6 text-primary" />
           <span className="font-bold text-lg">ReportIt</span>
@@ -98,7 +98,7 @@ useEffect(() => {
       {/* Sidebar */}
       <aside 
         className={`
-          fixed inset-0 z-50 md:relative
+          md:fixed md:top-0 md:left-0 z-50 md:relative
           md:flex flex-col w-64 border-r border-sidebar-border 
           bg-sidebar text-sidebar-foreground md:h-screen
           transition-transform duration-300 ease-in-out
@@ -108,7 +108,7 @@ useEffect(() => {
         `}
       >
         {/* Sidebar Header */}
-        <div className="p-4 flex items-center space-x-2 h-16">
+        <div className="p-4 flex items-center space-x-2 h-16 mt-3">
           <ShieldAlert className="h-6 w-6 text-primary" />
           <span className="font-bold text-lg">ReportIt Mod Center</span>
           {isMobile && (
@@ -174,7 +174,7 @@ useEffect(() => {
       </aside>
 
       {/* Main Content */}
-      <main className="flex-1">
+      <main className="flex-1 overflow-y-auto h-full bg-background">
         <div className="container max-w-7xl mx-auto p-4 md:p-6">
           <Outlet />
         </div>
