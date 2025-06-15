@@ -1,18 +1,18 @@
 import React from "react";
 import { BrowserRouter, Route, Routes } from "react-router-dom";
 import Layout from "./components/layout/Layout.jsx";
-import HomePage from "./pages/HomePage.jsx";
-import LoginPage from "./pages/LoginPage.jsx";
+import HomePage from "./pages/citizen/HomePage.jsx";
+import LoginPage from "./pages/citizen/LoginPage.jsx";
 import { Toaster } from "./components/ui/sonner.jsx";
 import { Toaster as Sonner } from "./components/ui/sonner";
-import RegisterPage from "./pages/RegisterPage.jsx";
-import ReportIssuePage from "./pages/ReportIssuePage.jsx";
+import RegisterPage from "./pages/citizen/RegisterPage.jsx";
+import ReportIssuePage from "./pages/citizen/ReportIssuePage.jsx";
 import { AuthProvider } from "./contexts/AuthProvider.jsx";
 import GoogleSuccess from "./components/GoogleSuccess.jsx";
-import ForgotPassword from "./pages/ForgotPassword.jsx";
-import IssueFeedPage from "./pages/IssueFeedPage.jsx";
-import MapPage from "./pages/MapPage.jsx";
-import StatusTrackingPage from "./pages/StatusTrackingPage.jsx";
+import ForgotPassword from "./pages/citizen/ForgotPassword.jsx";
+import IssueFeedPage from "./pages/citizen/IssueFeedPage.jsx";
+import MapPage from "./pages/citizen/MapPage.jsx";
+import StatusTrackingPage from "./pages/citizen/StatusTrackingPage.jsx";
 
 // Moderator
 import Index from "./pages/moderator/Index.jsx";
@@ -21,7 +21,7 @@ import Dashboard from "./pages/moderator/Dashboard.jsx";
 import IssueDetail from "./pages/moderator/IssueDetail.jsx";
 import Signup from "./pages/moderator/Signup.jsx";
 import Login from "./pages/moderator/Login.jsx";
-import IssueDetailsPage from "./pages/IssueDetailsPage.jsx";
+import IssueDetailsPage from "./pages/citizen/IssueDetailsPage.jsx";
 import IssueCard from "./components/moderator/IssueCard.jsx";
 
 const App = () => {
