@@ -26,40 +26,10 @@ import {
   DropdownMenuTrigger,
 } from "@radix-ui/react-dropdown-menu";
 
-import { MapContainer, TileLayer, useMap } from "react-leaflet";
-import "leaflet/dist/leaflet.css";
-import L from "leaflet";
-import "leaflet.heat";
+
 import axios from "axios";
+import Map from "@/components/issues/Map";
 const backendUrl = import.meta.env.VITE_BACKEND_URL;
-
-delete L.Icon.Default.prototype._getIconUrl;
-L.Icon.Default.mergeOptions({
-  iconUrl: "https://unpkg.com/leaflet@1.9.3/dist/images/marker-icon.png",
-  iconRetinaUrl:
-    "https://unpkg.com/leaflet@1.9.3/dist/images/marker-icon-2x.png",
-  shadowUrl: "https://unpkg.com/leaflet@1.9.3/dist/images/marker-shadow.png",
-});
-
-function HeatmapLayer({ points }) {
-  const map = useMap();
-
-  useEffect(() => {
-    if (!map) return;
-
-    const heatLayer = L.heatLayer(points, {
-      radius: 25,
-      blur: 15,
-      maxZoom: 17,
-    }).addTo(map);
-
-    return () => {
-      map.removeLayer(heatLayer);
-    };
-  }, [map, points]);
-
-  return null;
-}
 
 const MapPage = () => {
   const [mapLoaded, setMapLoaded] = useState(false);
@@ -67,11 +37,11 @@ const MapPage = () => {
   const [issues, setIssues] = useState([]);
   const [mapCenter, setMapCenter] = useState([25.4303, 81.7714]);
   const [statusFilters, setStatusFilters] = useState({
-    open: false,
-    "in-progress": false,
-    review: false,
-    resolved: false,
-    rejected: false,
+    "open": false,
+    "in progress": false,
+    "review": false,
+    "resolved": false,
+    "rejected": false,
   });
   const [categoryFilter, setCategoryFilter] = useState("all");
 
@@ -296,18 +266,7 @@ const MapPage = () => {
                 </div>
               </div>
             ) : (
-              <MapContainer
-                center={mapCenter}
-                zoom={15}
-                scrollWheelZoom={true}
-                className="h-full w-full z-0"
-              >
-                <TileLayer
-                  attribution='&copy; <a href="https://osm.org/copyright"></a>'
-                  url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-                />
-                <HeatmapLayer points={issues} />
-              </MapContainer>
+              <Map center={mapCenter} zoom={15} points={issues} />
             )}
           </Card>
         </div>

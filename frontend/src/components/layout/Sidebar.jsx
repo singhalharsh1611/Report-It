@@ -8,7 +8,8 @@ import React from 'react';
    Map, 
    BarChart3, 
    Settings, 
-   HelpCircle 
+   HelpCircle, 
+   User
  } from 'lucide-react';
  
  const Sidebar = ({ isOpen }) => {
@@ -19,11 +20,6 @@ import React from 'react';
      { path: '/status', icon: <Activity size={20} />, label: 'Status Tracking' },
      { path: '/map', icon: <Map size={20} />, label: 'Map View' },
      { path: '/analytics', icon: <BarChart3 size={20} />, label: 'Analytics' },
-   ];
- 
-   const footerItems = [
-     { path: '/settings', icon: <Settings size={20} />, label: 'Settings' },
-     { path: '/help', icon: <HelpCircle size={20} />, label: 'Help' },
    ];
  
    const sidebarClasses = 
@@ -52,25 +48,7 @@ import React from 'react';
              </NavLink>
            ))}
          </nav>
- 
-         <nav className="space-y-2 px-3 pt-6 border-t border-white/5">
-           {footerItems.map((item) => (
-             <NavLink
-               key={item.path}
-               to={item.path}
-               className={({ isActive }) => 
-                 `flex items-center p-3 rounded-md transition-colors
-                 ${isActive 
-                   ? 'bg-primary/20 text-primary' 
-                   : 'text-muted-foreground hover:bg-muted hover:text-foreground'
-                 }`
-               }
-             >
-               <span className="mr-3">{item.icon}</span>
-               <span className={`${!isOpen ? 'md:hidden' : ''}`}>{item.label}</span>
-             </NavLink>
-           ))}
-         </nav>
+
        </div>
      </aside>
    );

@@ -8,7 +8,8 @@ import {
   Settings, 
   LogOut,
   Menu,
-  X
+  X,
+  Map
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
@@ -61,12 +62,12 @@ useEffect(() => {
       path: "/moderator/dashboard?tab=issues",
       icon: <ShieldAlert className="h-5 w-5" />,
     },
-    
     {
-      name: "Notifications",
-      path: "/moderator/dashboard?tab=notifications",
-      icon: <Bell className="h-5 w-5" />,
-    },
+      name:"Heatmap",
+      path: "/moderator/dashboard?tab=heatmap",
+      icon: <Map className="h-5 w-5"/>
+
+    }
     
   ];
 

@@ -1,8 +1,11 @@
-import React, { useContext, useEffect } from 'react';
+import React, { useContext, useEffect, useState } from 'react';
 import { Link, Navigate, useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { PenSquare, Activity, Map, BarChart3, ArrowRight } from 'lucide-react';
 import AuthContext from '@/contexts/AuthContext';
+import axios from 'axios';
+
+const backend = import.meta.env.VITE_BACKEND_URL; 
 
 // const token
 const HomePage = () => {
@@ -10,8 +13,12 @@ const HomePage = () => {
   const navigate = useNavigate();
   // navigate(location.pathname, { replace: true });
 
+  const [stats, setStats] = useState({
+    total:0, resolution:0
+  });
+
   useEffect(() => {
-  }, [token]);
+  },[token]);
 
   useEffect(() => {
     if (!loading && user) {
@@ -20,6 +27,31 @@ const HomePage = () => {
       }
     }
   }, [user, loading, navigate]);
+
+  useEffect(()=>{
+    const fetchIssues = async () => {
+      try {
+        const response = await axios.get(`${backend}/api/issue`)
+        const allIssues = response.data.issues;
+        const total = allIssues.length;
+        const verified = allIssues.filter((issue) => issue.status !== "open").length;
+        const rejected = allIssues.filter((issue) => issue.status === "rejected").length;
+        const solved = verified+rejected;
+        const resolution = (solved*100)/total;
+        setStats({
+          total, resolution
+        })
+
+
+        
+      } catch (error) {
+        console.error("Error fetching issues:", error);
+      }
+    }
+    fetchIssues();
+  });
+
+
   return (
     <div className="flex flex-col gap-16 pb-20">
       {/* Top of page */}
@@ -50,14 +82,12 @@ const HomePage = () => {
         </div>
 
         {/* Statistics */}
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-8 mt-16 w-full max-w-4xl">
+        <div className="grid grid-cols-2 md:grid-cols-2 gap-4 md:gap-8 mt-16 max-w-4xl">
           {[
-            { value: "1,234+", label: "Issues Registered" },
-            { value: "85%", label: "Resolution Rate" },
-            { value: "24hrs", label: "Avg Response Time" },
-            { value: "5,000+", label: "Active Citizens" },
+            { value: stats.total, label: "Issues Registered" },
+            { value: Math.floor(stats.resolution)+"%", label: "Resolution Rate" }
           ].map((stat, i) => (
-            <div key={i} className="bg-card/50 p-4 rounded-lg border border-white/10">
+            <div key={i} className="bg-card/50 p-4 rounded-lg border border-white/10 px-8">
               <p className="text-2xl md:text-3xl sm:text-xl font-bold text-primary">{stat.value}</p>
               <p className="text-sm text-muted-foreground">{stat.label}</p>
             </div>

@@ -6,6 +6,7 @@ import {
   Mail,
   Tag,
   Image as ImageIcon,
+  User,
 } from "lucide-react";
 import {
   Card,
@@ -79,8 +80,8 @@ const IssueCard = ({ issue, onStatusChange }) => {
               <span>{formattedDate}</span>
             </div>
             <div className="flex items-center">
-              <Mail className="mr-1 h-3 w-3" />
-              <span>{issue.reporterEmail}</span>
+              <User className="mr-1 h-3 w-3" />
+              <span>{issue.createdBy.name}</span>
             </div>
             <div className="flex items-center">
               <Tag className="mr-1 h-3 w-3" />
