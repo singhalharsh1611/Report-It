@@ -175,8 +175,8 @@ const MapPage = () => {
                 <div className="grid grid-cols-2 gap-2">
                   {[
                     "open",
-                    "in-progress",
-                    "review",
+                    "in progress",
+                    "under review",
                     "resolved",
                     "rejected",
                   ].map((status) => (

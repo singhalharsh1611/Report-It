@@ -16,8 +16,8 @@ const StatusTrackingPage = () => {
 
   const statusStages = [
     "open",
-    "underReview",
-    "inProgress",
+    "under review",
+    "in progress",
     "resolved",
     "rejected"
   ];
@@ -37,7 +37,7 @@ const StatusTrackingPage = () => {
       if (response.data.success) {
         const processedIssues = response.data.issues.map(issue => {
           const timeline = [];
-          const reportedDate = issue.createdAt || new Date().toISOString().split("T")[0]; // Use createdAt or current date
+          const reportedDate = issue.createdAt || new Date().toISOString().split("T")[0]; 
           const currentIndex = statusStages.indexOf(issue.status);
 
           // Add category (if available)
@@ -76,11 +76,11 @@ const StatusTrackingPage = () => {
 
   useEffect(() => {
     getIssueFeed();
-    console.log(statusTimeline);
+    // console.log(statusTimeline);
   }, []);
-  useEffect(() => {
-    console.log('Updated statusTimeline:', statusTimeline);
-  }, [statusTimeline]);
+  // useEffect(() => {
+  //   // console.log('Updated statusTimeline:', statusTimeline);
+  // }, [statusTimeline]);
   return (
     <div className="pb-12">
       <div className="mb-8">
@@ -100,7 +100,7 @@ const StatusTrackingPage = () => {
                   <div className="flex items-center gap-2 mt-1">
                     <span className="text-sm text-muted-foreground">{issue.category}</span>
                     <span>•</span>
-                    <span className="text-sm text-muted-foreground">Reported on {issue.reportedOn}</span>
+                    <span className="text-sm text-muted-foreground">Reported on {new Date(issue.reportedOn).toLocaleDateString()}</span>
                   </div>
                 </div>
                 <StatusBadge status={issue.currentStatus} />
@@ -118,8 +118,8 @@ const StatusTrackingPage = () => {
                     <div
                       className={`absolute -left-8 w-6 h-6 rounded-full border-4 border-background 
     ${event.status === 'open' ? 'bg-status-open' : ''}
-    ${event.status === 'inProgress' ? 'bg-status-inProgress' : ''}
-    ${event.status === 'underReview' ? 'bg-status-underReview' : ''}
+    ${event.status === 'in progress' ? 'bg-status-inProgress' : ''}
+    ${event.status === 'under review' ? 'bg-status-underReview' : ''}
     ${event.status === 'resolved' ? 'bg-status-resolved' : ''}
     ${event.status === 'rejected' ? 'bg-status-rejected' : ''}
   `}
@@ -137,14 +137,6 @@ const StatusTrackingPage = () => {
                     </div>
                   </div>
                 ))}
-
-                {/*Comment Button */}
-                <div className="mt-4 flex justify-end">
-                  <Button variant="outline" size="sm" className="gap-2">
-                    <MessageSquare className="h-4 w-4" />
-                    Add Comment
-                  </Button>
-                </div>
               </div>
             </CardContent>
           </Card>
