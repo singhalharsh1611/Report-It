@@ -17,8 +17,10 @@ const backend = import.meta.env.VITE_BACKEND_URL;
 
 const IssueDetailsPage = () => {
   const { id } = useParams();
-  const { token } = useContext(AuthContext);
-const navigate = useNavigate();
+  const [upvoteCount, setUpvoteCount] = useState(0);
+  const { token } = useContext(AuthContext)
+  const [hasUpvoted, setHasUpvoted] = useState(false);
+  const navigate = useNavigate();
   const [issue, setIssue] = useState(null);
   const [comments, setComments] = useState([]);
   const [newComment, setNewComment] = useState("");
@@ -31,6 +33,10 @@ const navigate = useNavigate();
       const res = await axios.get(`${backend}/api/issue/${id}`);
       if (res.data.success) {
         setIssue(res.data.issue);
+        setUpvoteCount(issue?.upvotes?.length || 0);
+
+        const userId = decodedToken(token)?.id; // helper to decode user id from token
+        setHasUpvoted(issue?.upvotes?.includes(userId));
       } else {
         console.error(res.data.message || "Failed to fetch issue");
       }
@@ -57,9 +63,9 @@ const navigate = useNavigate();
 
   const handleAddComment = async () => {
     if (!newComment.trim()) return;
-    if(token===null){
-        toast.error("Please login first");
-        navigate("/login");
+    if (token === null) {
+      toast.error("Please login first");
+      navigate("/login");
     }
     setSubmitting(true);
     try {
@@ -72,7 +78,7 @@ const navigate = useNavigate();
           },
         }
       );
-  
+
       if (res.data.success) {
         // Add new comment to top
         setComments((prev) => [res.data.comment, ...prev]);
@@ -91,6 +97,7 @@ const navigate = useNavigate();
   useEffect(() => {
     fetchIssueDetails();
     fetchComments();
+
   }, [id]);
 
   if (loading) {
@@ -102,6 +109,49 @@ const navigate = useNavigate();
         <Skeleton className="h-20 w-full" />
       </div>
     );
+  }
+  const submitUpvote = async () => {
+    try {
+      const res = await axios.patch(
+        `${backend}/api/issue/${id}/upvote`,
+        {},
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+
+      if (res.status === 200) {
+        toast.success(res.data.message);
+        setUpvoteCount(res.data.upvotesCount); // 👈 update count in state
+        setHasUpvoted((prev) => !prev);
+      }
+
+    } catch (error) {
+      toast.error("Upvote failed");
+      console.error(error);
+    }
+  };
+  function decodedToken(token) {
+    try {
+      return JSON.parse(atob(token.split('.')[1]));
+    } catch (err) {
+      return null;
+    }
+  }
+
+  // useEffect(() => {
+  //  
+
+  //   fetchComments();
+  // }, [issue.id, issue.upvotes])
+
+  function dateConvertion(event) {
+    return new Date(event).toLocaleString('en-US', {
+      dateStyle: 'medium', // e.g., "Jun 25, 2025"
+      timeStyle: 'short',  // e.g., "5:30 PM"
+    })
   }
 
   if (!issue) return <p className="text-center text-red-500">Issue not found</p>;
@@ -123,10 +173,17 @@ const navigate = useNavigate();
         <StatusBadge status={issue.status} />
         <Badge className="text-base px-4 py-2">{issue.category}</Badge>
         <Badge variant="outline" className="text-base px-4 py-2">
-          Reported: {new Date(issue.createdAt).toLocaleString()}
+          Reported: {dateConvertion(issue.createdAt)}
         </Badge>
-        <Badge variant="secondary" className="text-base px-4 py-2">
-          Upvotes: {issue.upvotes}
+        <Badge 
+         onClick={submitUpvote}
+         variant="ghost"
+         size="sm"
+         className={`gap-1 hover:text-primary ${
+           hasUpvoted ? "text-primary font-semibold" : "text-muted-foreground"
+         }`}
+        >
+          Upvotes: {upvoteCount}
         </Badge>
         <Badge variant="secondary" className="text-base px-4 py-2">
           Comments: {comments.length}
@@ -161,31 +218,31 @@ const navigate = useNavigate();
             <p className="text-muted-foreground">No comments yet.</p>
           ) : (
             <div className="space-y-3">
-  {comments.map((comment) => (
-    <div
-      key={comment._id}
-      className="p-4 border rounded-md bg-muted"
-    >
-      <div className="flex justify-between items-center mb-2">
-        <p className="text-sm font-medium">{comment.user.name}</p>
-        <p className="text-sm text-muted-foreground">
-          {new Date(comment.createdAt).toLocaleString()}{" "}
-          <span className="ml-2 text-xs text-muted-foreground">
-            ({comment.user.role})
-          </span>
-        </p>
-      </div>
-      <p className="text-base">{comment.content}</p>
-    </div>
-  ))}
-</div>
+              {comments.map((comment) => (
+                <div
+                  key={comment._id}
+                  className="p-4 border rounded-md bg-muted"
+                >
+                  <div className="flex justify-between items-center mb-2">
+                    <p className="text-sm font-medium">{comment.user.name}</p>
+                    <p className="text-sm text-muted-foreground">
+                      {new Date(comment.createdAt).toLocaleString()}{" "}
+                      <span className="ml-2 text-xs text-muted-foreground">
+                        ({comment.user.role})
+                      </span>
+                    </p>
+                  </div>
+                  <p className="text-base">{comment.content}</p>
+                </div>
+              ))}
+            </div>
 
           )}
           {/* Add Comment Box */}
 
 
         </CardContent>
-        
+
       </Card>
     </div>
   );
