@@ -7,7 +7,7 @@ import validator from "validator";
 import nodemailer from "nodemailer";
 
 export const register = async (req, res) => {
-    console.log(req.body);
+    // console.log(req.body);
     const { name, email, password, role, secretKey, aadharCard, panCard } = req.body;
 
     if (!name || !email || !password) {
@@ -97,7 +97,7 @@ export const login = async (req, res) => {
 
     const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET, { expiresIn: '1d' });
 
-
+    console.log(token);
     return res.status(200).json({
         success: true,
         message: "User logged in successfully",

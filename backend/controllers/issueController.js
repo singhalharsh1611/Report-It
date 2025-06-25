@@ -39,7 +39,13 @@ export const createIssue = async (req, res) => {
       },
       category,
       createdBy: req.user._id,
+      statusHistory:[{
+        status:"open",
+        updatedAt: new Date(),
+        updatedBy: req.user._id,
+      }]
     };
+    
 
     const newIssue = new Issue(newForm);
 
@@ -61,7 +67,11 @@ export const createIssue = async (req, res) => {
       },
       status: newIssue.status,
       createdAt: newIssue.createdAt,
+
     });
+ 
+  
+    
 
     res.status(201).json({ success: true, message: "New issue Added" });
   } catch (err) {
@@ -81,7 +91,8 @@ export const getAllIssues = async (req, res) => {
 
     const issues = await Issue.find(filter)
       .populate("createdBy", "name role") // make object of name and role of person report issue instead of object id
-      .sort(sortOptions);
+      .sort(sortOptions)
+      .populate('statusHistory.updatedBy', 'name role');
 
     res.json({ success: true, message: "All Issue fetched With given conditions", issues });
   } catch (err) {
@@ -94,7 +105,8 @@ export const getIssueById = async (req, res) => {
   try {
     const issue = await Issue.findById(req.params.id)
       .populate("createdBy", "name role email")
-      .populate("verifiedBy", "name");
+      .populate("verifiedBy", "name")
+      .populate('statusHistory.updatedBy', 'name role');
 
     if (!issue) return res.status(404).json({ success: false, message: "Issue not found" });
     res.json({ success: true, message: "All Issue fetched With given conditions", issue });
@@ -107,24 +119,33 @@ export const getIssueById = async (req, res) => {
 export const updateIssueStatus = async (req, res) => {
   try {
     const { status } = req.body;
+    const issue = await Issue.findById(req.params.id);
 
-    const updated = await Issue.findByIdAndUpdate(
-      req.params.id,
-      {
-        status,
-        verifiedBy: req.user._id,
-        updatedAt: Date.now(),
-      },
-      { new: true }
-    );
+    if (!issue) {
+      return res.status(404).json({ success: false, message: "Issue not found" });
+    }
 
-    if (!updated) return res.status(404).json({ success: false, message: "Issue not found" });
+    // Update current status
+    issue.status = status;
+    issue.verifiedBy = req.user._id;
+    issue.statusUpdatedAt = new Date(); // optional: if you're still using it
 
-    res.json({ success: true, message: "status Updated" });
+    // Push to status history
+    issue.statusHistory.push({
+      status,
+      updatedAt: new Date(),
+      updatedBy: req.user._id,
+    });
+
+    await issue.save();
+
+    res.json({ success: true, message: "Status updated", statusHistory: issue.statusHistory });
   } catch (err) {
+    console.error(err);
     res.status(500).json({ error: "Failed to update issue status" });
   }
 };
+
 
 // Upvote an issue
 // export const upvoteIssue = async (req, res) => {

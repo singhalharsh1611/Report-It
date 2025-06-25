@@ -34,6 +34,23 @@ const issueSchema = new mongoose.Schema(
       ],
       required: true,
     },
+    statusHistory: [
+      {
+        status: {
+          type: String,
+          enum: ["open", "under review", "in progress", "resolved", "rejected"],
+        },
+        updatedAt: {
+          type: Date,
+          default: Date.now,
+        },
+        updatedBy: {
+          type: mongoose.Schema.Types.ObjectId,
+          ref: "User", // optional: track who made the change
+        }
+      }
+    ],
+    
     createdBy: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "User",

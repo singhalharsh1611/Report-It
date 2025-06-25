@@ -36,33 +36,19 @@ const StatusTrackingPage = () => {
 
       if (response.data.success) {
         const processedIssues = response.data.issues.map(issue => {
-          const timeline = [];
-          const reportedDate = issue.createdAt || new Date().toISOString().split("T")[0]; 
-          const currentIndex = statusStages.indexOf(issue.status);
-
-          // Add category (if available)
-          const category = issue.category || 'Unknown';  // Default to 'Unknown' if not available
-
-          // Generate timeline for each status up to currentStatus
-          for (let i = 0; i <= currentIndex; i++) {
-            timeline.push({
-              status: statusStages[i],
-              date: "reportedDate",  // Use the latest date for each status
-              comment: statusComments[statusStages[i]]
-            });
-          }
-
+          const timeline = issue.statusHistory;
           return {
             id: issue._id,
             title: issue.title,
-            category: category,
-            reportedOn: reportedDate,
+            category: issue.category,
+            reportedOn: issue.createdAt,
             currentStatus: issue.status,
             timeline
           };
         });
 
         setStatusTimeline(processedIssues);
+        console.log(statusTimeline);
       } else {
         console.error(response.data.message || 'Failed to load issues');
       }
@@ -71,7 +57,12 @@ const StatusTrackingPage = () => {
     }
   };
 
-
+function dateConvertion(event){
+  return new Date(event).toLocaleString('en-US', {
+    dateStyle: 'medium', // e.g., "Jun 25, 2025"
+    timeStyle: 'short',  // e.g., "5:30 PM"
+  })
+}
 
 
   useEffect(() => {
@@ -100,7 +91,7 @@ const StatusTrackingPage = () => {
                   <div className="flex items-center gap-2 mt-1">
                     <span className="text-sm text-muted-foreground">{issue.category}</span>
                     <span>•</span>
-                    <span className="text-sm text-muted-foreground">Reported on {new Date(issue.reportedOn).toLocaleDateString()}</span>
+                    <span className="text-sm text-muted-foreground">Reported on {dateConvertion(issue.reportedOn)}</span>
                   </div>
                 </div>
                 <StatusBadge status={issue.currentStatus} />
@@ -112,7 +103,7 @@ const StatusTrackingPage = () => {
                 <div className="absolute left-3 top-2 bottom-0 w-0.5 bg-secondary"></div>
 
                 {issue.timeline.map((event, index) => (
-                  <div key={`${event.status}-${event.date}`}
+                  <div key={`${event._id}`}
                     className="relative mb-5">
                     {/* Status  */}
                     <div
@@ -131,9 +122,10 @@ const StatusTrackingPage = () => {
                         <h4 className="font-medium capitalize">
                           {event.status.replace('-', ' ')}
                         </h4>
-                        <span className="text-sm text-muted-foreground">{event.date}</span>
+                        <span className="text-sm text-muted-foreground">update on : {dateConvertion(event.updatedAt)}<br></br>update by : {event.updatedBy.name} ({event.updatedBy.role})</span>
+
                       </div>
-                      <p className="text-sm text-muted-foreground">{event.comment}</p>
+                      <p className="text-sm text-muted-foreground">{statusComments[event.status]}</p>
                     </div>
                   </div>
                 ))}
