@@ -89,10 +89,10 @@ export const getAllIssues = async (req, res) => {
 
     const sortOptions = sort === "latest" ? { createdAt: -1 } : { upvotes: -1 };
 
-    const issues = await Issue.find(filter)
-      .populate("createdBy", "name role") // make object of name and role of person report issue instead of object id
-      .sort(sortOptions)
-      .populate('statusHistory.updatedBy', 'name role');
+   const issues = await Issue.find(filter)
+  .populate("createdBy", "_id name role")
+  .sort(sortOptions)
+  .populate("statusHistory.updatedBy", "_id name role");
 
     res.json({ success: true, message: "All Issue fetched With given conditions", issues });
   } catch (err) {

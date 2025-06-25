@@ -73,7 +73,14 @@ export function IssueCard({ issue }) {
     setHasUpvoted(issue.upvotes?.includes(userId));
 
     fetchComments();
-  }, [issue.id, issue.upvotes]);
+  }, [issue.id, issue.upvotes])
+  ;
+    function dateConvertion(event) {
+    return new Date(event).toLocaleString('en-US', {
+      dateStyle: 'medium', // e.g., "Jun 25, 2025"
+      timeStyle: 'short',  // e.g., "5:30 PM"
+    })
+  }
   return (
     <Card className="overflow-hidden border border-white/10 bg-card hover:border-primary/20 transition-all duration-300">
       {issue.imageUrl && (
@@ -95,7 +102,7 @@ export function IssueCard({ issue }) {
             </div>
             <div className="flex items-center">
               <Calendar className="h-3 w-3 mr-1" />
-              <span className="text-xs">{issue.createdAt}</span>
+              <span className="text-xs">{dateConvertion(issue.createdAt)}</span>
             </div>
           </div>
           <h3 className="text-lg font-semibold">{issue.title}</h3>
