@@ -7,6 +7,7 @@ import validator from "validator";
 import nodemailer from "nodemailer";
 
 export const register = async (req, res) => {
+    console.log(req.body);
     const { name, email, password, role, secretKey, aadharCard, panCard } = req.body;
 
     if (!name || !email || !password) {

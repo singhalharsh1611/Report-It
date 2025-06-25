@@ -127,19 +127,56 @@ export const updateIssueStatus = async (req, res) => {
 };
 
 // Upvote an issue
-export const upvoteIssue = async (req, res) => {
-  try {
-    const issue = await Issue.findById(req.params.id);
-    if (!issue) return res.status(404).json({ success: false, message: "Issue not found" });
+// export const upvoteIssue = async (req, res) => {
+//   try {
+//     const issue = await Issue.findById(req.params.id);
+//     if (!issue) return res.status(404).json({ success: false, message: "Issue not found" });
 
-    issue.upvotes += 1;
+//     issue.upvotes += 1;
+//     await issue.save();
+
+//     res.json({ success: true, message: "Issue upvoted", upvotes: issue.upvotes });
+//   } catch (err) {
+//     res.status(500).json({ error: "Failed to upvote issue" });
+//   }
+// };
+// controllers/issueController.js
+
+export const toggleUpvote = async (req, res) => {
+  try {
+    const { id:issueId } = req.params;
+    const userId = req.user._id; // assuming auth middleware sets req.user
+    console.log(issueId);
+    // console.log(userId);
+
+    const issue = await Issue.findById(issueId);
+    console.log(issue);
+    if (!issue) return res.status(404).json({success:false, message: "Issue not found" });
+    if (!issue.upvotes) issue.upvotes = [];
+    const hasUpvoted = issue.upvotes.some((id) => id.toString() === userId.toString());
+    console.log(hasUpvoted);
+    if (hasUpvoted) {
+      // remove upvote
+      issue.upvotes = issue.upvotes.filter(
+        (id) => id.toString() !== userId.toString()
+      );
+    } else {
+      // add upvote
+      issue.upvotes.push(userId);
+    }
+
     await issue.save();
 
-    res.json({ success: true, message: "Issue upvoted", upvotes: issue.upvotes });
-  } catch (err) {
-    res.status(500).json({ error: "Failed to upvote issue" });
+    return res.status(200).json({
+      success:true,
+      message: hasUpvoted ? "Upvote removed" : "Upvoted",
+      upvotesCount: issue.upvotes.length,
+    });
+  } catch (error) {
+    res.status(500).json({success:false, message: "Server error", error });
   }
 };
+
 
 // Delete an issue
 export const deleteIssue = async (req, res) => {

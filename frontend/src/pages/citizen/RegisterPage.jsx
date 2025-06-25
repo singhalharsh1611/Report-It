@@ -50,7 +50,8 @@ const RegisterPage = () => {
 
     // Simulate registration delay
     try {
-      await register(formData.name, formData.email, formData.password);
+      // console.log(formData);
+      await register({name:formData.name, email:formData.email, password:formData.password});
     } catch (error) {
       console.log(error);
     } finally {

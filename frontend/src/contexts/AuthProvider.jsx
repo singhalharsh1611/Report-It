@@ -61,6 +61,7 @@ export const AuthProvider = ({ children }) => {
 
   const register = async (data) => {
     try {
+      // console.log("l",data);
       const response = await axios.post(`${backendUrl}/api/auth/register`, data);
       if (response.data.success) {
         if (data.role === "moderator") {
