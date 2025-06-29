@@ -23,6 +23,7 @@ import Signup from "./pages/moderator/Signup.jsx";
 import Login from "./pages/moderator/Login.jsx";
 import IssueDetailsPage from "./pages/citizen/IssueDetailsPage.jsx";
 import IssueCard from "./components/moderator/IssueCard.jsx";
+import AnalyticsPage from "./pages/citizen/AnalyticsPage.jsx";
 
 const App = () => {
   return (
@@ -79,6 +80,14 @@ const App = () => {
               element={
                 <Layout>
                   <IssueDetailsPage />
+                </Layout>
+              }
+            />
+            <Route
+              path="/analytics"
+              element={
+                <Layout>
+                  <AnalyticsPage />
                 </Layout>
               }
             />

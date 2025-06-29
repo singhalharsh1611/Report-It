@@ -104,7 +104,7 @@ const ReportIssuePage = () => {
       navigate("/login");
       return;
     }
-    console.log(token);
+    // console.log(token);
     const formData = new FormData();
     formData.append("title", title);
     formData.append("category", category);

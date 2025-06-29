@@ -12,7 +12,6 @@ import { Button } from "@/components/ui/button";
 import AuthContext from "@/contexts/AuthContext";
 import { toast } from "sonner";
 
-// import { AuthContext } from "@/contexts/AuthContext"; // adjust path based on your app
 
 const backend = import.meta.env.VITE_BACKEND_URL;
 

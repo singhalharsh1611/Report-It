@@ -34,9 +34,9 @@ const HomePage = () => {
         const response = await axios.get(`${backend}/api/issue`)
         const allIssues = response.data.issues;
         const total = allIssues.length;
-        const verified = allIssues.filter((issue) => issue.status !== "open").length;
+        const resolved = allIssues.filter((issue) => issue.status === "resolved").length;
         const rejected = allIssues.filter((issue) => issue.status === "rejected").length;
-        const solved = verified+rejected;
+        const solved = resolved+rejected;
         const resolution = (solved*100)/total;
         setStats({
           total, resolution
@@ -49,7 +49,7 @@ const HomePage = () => {
       }
     }
     fetchIssues();
-  });
+  }, [token]);
 
 
   return (
