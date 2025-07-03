@@ -24,6 +24,9 @@ import Login from "./pages/moderator/Login.jsx";
 import IssueDetailsPage from "./pages/citizen/IssueDetailsPage.jsx";
 import IssueCard from "./components/moderator/IssueCard.jsx";
 import AnalyticsPage from "./pages/citizen/AnalyticsPage.jsx";
+import AdminLogin from "./pages/admin/AdminLogin.jsx";
+import AdminLayout from "./components/admin/AdminLayout.jsx";
+import AdminDashboard from "./pages/admin/AdminDashboard.jsx";
 
 const App = () => {
   return (
@@ -106,6 +109,13 @@ const App = () => {
             </Route>
             <Route path="/auth/login" element={<Login />} />
             <Route path="/auth/signup" element={<Signup />} />
+
+            {/* Admin Routes - Wrapped in Layout */}
+            <Route path="/admin" element={<AdminLogin />} />
+            <Route path="/admin" element={<AdminLayout />}>
+              <Route path="dashboard" element={<AdminDashboard/>} />
+            </Route>
+
           </Routes>
         </AuthProvider>
       </BrowserRouter>
