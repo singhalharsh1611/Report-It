@@ -16,7 +16,7 @@ const backend = import.meta.env.VITE_BACKEND_URL;
 const StatusTrackingPage = () => {
   const [statusTimeline, setStatusTimeline] = useState([]);
   const [showMyIssues, setShowMyIssues] = useState(false);
-  const [allIssue, setAllIssue] = useState([])
+  const [allIssue, setAllIssue] = useState([]);
   const { token, user } = useContext(AuthContext);
   // console.log(user.name ,token);
   const statusStages = [
@@ -24,15 +24,15 @@ const StatusTrackingPage = () => {
     "under review",
     "in progress",
     "resolved",
-    "rejected"
+    "rejected",
   ];
 
   const statusComments = {
-    "open": "Report received and logged.",
+    open: "Report received and logged.",
     "under review": "Investigation or action has started.",
     "in progress": "Work completed and under review.",
-    "resolved": "Issue resolved successfully.",
-    "rejected": "Issue has been reviewed and rejected."
+    resolved: "Issue resolved successfully.",
+    rejected: "Issue has been reviewed and rejected.",
   };
 
   const getIssueFeed = async () => {
@@ -40,19 +40,20 @@ const StatusTrackingPage = () => {
       const response = await axios.get(`${backend}/api/issue`);
 
       if (response.data.success) {
-        const processedIssues = response.data.issues.map(issue => ({
+        const processedIssues = response.data.issues.map((issue) => ({
           id: issue._id,
+          issueId: issue.issueId || issue._id,
           title: issue.title,
           category: issue.category,
           reportedOn: issue.createdAt,
           currentStatus: issue.status,
           timeline: issue.statusHistory,
           createdBy: issue.createdBy?._id,
-          createdByUser: issue.createdBy?.name  // make sure _id exists
-        }));
+          createdByUser: issue.createdBy?.name, // make sure _id exists
+        })).sort((a, b) => new Date(b.reportedOn) - new Date(a.reportedOn));
 
         const filtered = showMyIssues
-          ? processedIssues.filter(issue => issue.createdBy === user._id)
+          ? processedIssues.filter((issue) => issue.createdBy === user._id)
           : processedIssues;
         setStatusTimeline(filtered);
         setAllIssue(processedIssues);
@@ -60,10 +61,10 @@ const StatusTrackingPage = () => {
         // console.log("hi", filtered);
         // console.log("filter", filtered);
       } else {
-        console.error(response.data.message || 'Failed to load issues');
+        console.error(response.data.message || "Failed to load issues");
       }
     } catch (err) {
-      console.error('Error fetching issues:', err);
+      console.error("Error fetching issues:", err);
     }
   };
 
@@ -74,15 +75,20 @@ const StatusTrackingPage = () => {
     })
   }
 
+  useEffect(() => {
+    if (user && token) {
+      getIssueFeed();
+    }
+  }, [user, token]);
 
   useEffect(() => {
-    if (user?.name) {
-      getIssueFeed();
+    const timer = setTimeout(() => {
+      if (user === null) {
+        toast.error("Please login first");
+      }
+    }, 500);
 
-    }
-    else{
-      toast.error("please login first");
-    }
+    return () => clearTimeout(timer);
   }, [user]);
 
   return (
@@ -97,17 +103,16 @@ const StatusTrackingPage = () => {
           </div>
           <Button
             onClick={() => {
-              setShowMyIssues(prev => !prev);
+              setShowMyIssues((prev) => !prev);
               const filtered = !showMyIssues
-                ? allIssue.filter(issue => issue.createdBy === user._id)
+                ? allIssue.filter((issue) => issue.createdBy === user._id)
                 : allIssue;
               setStatusTimeline(filtered);
             }}
           >
-            {showMyIssues ? 'All Issues' : 'My Issues'}
+            {showMyIssues ? "All Issues" : "My Issues"}
           </Button>
         </div>
-
 
         <div className="space-y-6 w-full">
           {statusTimeline.map((issue) => (
@@ -117,12 +122,16 @@ const StatusTrackingPage = () => {
                   <div>
                     <CardTitle className="text-xl">{issue.title} </CardTitle>
                     <div className="flex items-center gap-2 mt-1">
-                      <span className="text-sm text-muted-foreground">{issue.category}</span>
+                      <span className="text-sm text-muted-foreground">
+                        {issue.category.charAt(0).toUpperCase() +
+                          issue.category.slice(1)}
+                      </span>
                       <span>•</span>
                       <span className="text-sm text-muted-foreground">Reported on {dateConvertion(issue.reportedOn)}</span>
                       <span>•</span>
                       <span className="text-sm text-muted-foreground">Reported by {issue.createdByUser}</span>
                     </div>
+                    <p>Issue Id: {issue.issueId}</p>
                   </div>
                   <StatusBadge status={issue.currentStatus} />
                 </div>
@@ -145,7 +154,6 @@ const StatusTrackingPage = () => {
     ${event.status === 'rejected' ? 'bg-status-rejected' : ''}
   `}
                       ></div>
-
 
                       <div className="bg-card border border-white/5 rounded-lg p-4">
                         <div className="flex items-center justify-between mb-1">
