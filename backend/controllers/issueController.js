@@ -116,6 +116,21 @@ export const getIssueById = async (req, res) => {
   }
 };
 
+export const getIssuebyNanoID = async (req, res) => {
+  try {
+    const issue = await Issue.findOne({ issueId: req.params.id })
+      .populate("createdBy", "name role email")
+      .populate("verifiedBy", "name")
+      .populate('statusHistory.updatedBy', 'name role');
+    if (!issue) return res.status(404).json({ success: false, message: "Issue not found" });
+    res.json({ success: true, message: "Issue fetched successfully", issue });
+  }
+  catch (err) {
+    console.error(err);
+    res.status(500).json({ error: "Failed to get issue" });
+  }
+};
+
 // Update issue status
 export const updateIssueStatus = async (req, res) => {
   try {

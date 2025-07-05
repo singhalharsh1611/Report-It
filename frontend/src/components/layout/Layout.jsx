@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import Navbar from "./Navbar";
 import Sidebar from "./Sidebar";
+import ChatbotWidget from "../chatbotWidget/ChatbotWidget.jsx";
 
 const Layout = ({ children }) => {
   const [sidebarOpen, setSidebarOpen] = useState(false);
@@ -21,6 +22,8 @@ const Layout = ({ children }) => {
       <main className="flex-1 overflow-auto pt-16 md:pl-20">
         <div className="container mx-auto p-4 md:p-6">{children}</div>
       </main>
+
+      <ChatbotWidget />
 
       {/* Mobile sidebar*/}
       {sidebarOpen && (

@@ -6,6 +6,7 @@ import {
   toggleUpvote,
   deleteIssue,
   createIssue,
+  getIssuebyNanoID,
 } from "../controllers/issueController.js";
 
 import { authMiddleware } from "../middleware/authMiddleware.js";
@@ -20,6 +21,7 @@ const issueRouter = express.Router();
 issueRouter.post("/", authMiddleware, upload.array('images'), createIssue);
 issueRouter.get("/", getAllIssues);
 issueRouter.get("/:id", getIssueById);
+issueRouter.get("/issueId/:id", getIssuebyNanoID);
 issueRouter.patch("/:id/status", authMiddleware, authorizeroles("admin", "moderator"), updateIssueStatus);
 issueRouter.patch("/:id/upvote", authMiddleware, toggleUpvote);
 issueRouter.delete("/:id", authMiddleware, deleteIssue);
