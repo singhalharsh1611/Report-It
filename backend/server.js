@@ -17,6 +17,7 @@ import multer from "multer";
 import http from "http";
 import {Server} from "socket.io";
 import { setIO } from "./config/socket.js";
+import geminiRouter from "./routes/geminiRoute.js";
 
 passportSetup();
 
@@ -80,7 +81,7 @@ app.use("/api/issue", issueRouter);
 
 app.use('/api/admin', adminRouter); //for admins
 
-
+app.use("/api/gemini", geminiRouter);
 
 server.listen(port, () => {
     console.log(`server started on port :${port}`)

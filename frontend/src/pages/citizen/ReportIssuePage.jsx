@@ -36,6 +36,7 @@ const ReportIssuePage = () => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [latitude, setLatitude] = useState();
   const [longitude, setLongitude] = useState();
+  const [isFetchingLocation, setIsFetchingLocation] = useState(false);
 
   const { token } = useContext(AuthContext);
 
@@ -43,6 +44,7 @@ const ReportIssuePage = () => {
 
   const handleUserLocation = () => {
     if (navigator.geolocation) {
+      setIsFetchingLocation(true);
       navigator.geolocation.getCurrentPosition(
         async (position) => {
           const { latitude, longitude } = position.coords;
@@ -67,7 +69,10 @@ const ReportIssuePage = () => {
             }
           } catch (error) {
             toast.error(error);
+          }finally{
+            setIsFetchingLocation(false);
           }
+
         },
         (error) => {
           toast.error("Unable to fetch location");
@@ -99,6 +104,11 @@ const ReportIssuePage = () => {
       toast.error("Please select a category");
       return;
     }
+    if (!latitude || !longitude) {
+      toast.error("Please click on the map pin button to fetch location");
+      return;
+    }
+
     if(token===null){
       toast.error("plz login");
       navigate("/login");
@@ -117,26 +127,31 @@ const ReportIssuePage = () => {
     setIsSubmitting(true);
 
     try {
-      await axios.post(`${backendUrl}/api/issue/`, formData, {
+      const response = await axios.post(`${backendUrl}/api/issue/`, formData, {
         headers: {
           "Content-Type": "multipart/form-data",
           Authorization: `Bearer ${token}`,
         },
       });
+      const createdIssueId = response.data.issueId;
+      toast.success(
+        <>
+          Your issue has been reported successfully!
+          <br />
+          <span className="font-semibold">Issue ID: {createdIssueId}</span>
+        </>
+      );
 
-      toast.success("Issue reported sucessfully");
-      navigate("/issues");
+      setTimeout(() => {
+        navigate('/issues');
+      }, 1500);
     } catch (error) {
       toast.error(
         error.response?.data?.message ||
           "An error occurred while reporting the issue"
       );
     } finally {
-      setIsSubmitting(false);
-      toast.success('Your issue has been reported successfully!');
-      setTimeout(() => {
-        navigate('/issues');
-      }, 1500); // Only one delay argument, properly placed
+      setIsSubmitting(false);      
     }
     
 
@@ -226,8 +241,13 @@ const ReportIssuePage = () => {
                     size="icon"
                     className="shrink-0"
                     onClick={handleUserLocation}
+                    disabled={isFetchingLocation}
                   >
-                    <MapPin className="h-4 w-4" />
+                    {isFetchingLocation ? (
+                      <span className="animate-spin h-4 w-4 rounded-full border-2 border-white border-t-transparent" />
+                    ) : (
+                      <MapPin className="h-4 w-4" />
+                    )}
                   </Button>
                 </div>
                 <p className="text-xs text-muted-foreground mt-1">
@@ -295,7 +315,11 @@ const ReportIssuePage = () => {
               >
                 Cancel
               </Button>
-              <Button type="submit" className="flex-1" disabled={isSubmitting}>
+              <Button
+                type="submit"
+                className="flex-1"
+                disabled={isSubmitting || !latitude || !longitude}
+              >
                 {isSubmitting ? "Submitting..." : "Submit Issue"}
               </Button>
             </div>

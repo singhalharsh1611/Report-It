@@ -175,6 +175,7 @@ const IssueDetailsPage = () => {
       <div className="lg:col-span-2 space-y-5">
         <div className="max-w-4xl mx-auto p-2 space-y-6">
           <h1 className="text-3xl font-bold">{issue.title}</h1>
+          <p>Issue ID: {issue.issueId||issue._id} </p>
           <p className="text-muted-foreground">{issue.location?.address}</p>
 
           <img

@@ -1,7 +1,12 @@
 import mongoose from "mongoose";
+import { nanoid } from "nanoid";
 
 const issueSchema = new mongoose.Schema(
-  {
+  { 
+    issueId: {
+      type: String,
+      unique: true,
+    },
     title: {
       type: String,
       required: true,
@@ -46,7 +51,7 @@ const issueSchema = new mongoose.Schema(
         },
         updatedBy: {
           type: mongoose.Schema.Types.ObjectId,
-          ref: "User", // optional: track who made the change
+          ref: "User",
         }
       }
     ],
@@ -69,6 +74,15 @@ const issueSchema = new mongoose.Schema(
   },
   { timestamps: true }
 );
+
+// to get short issueId
+issueSchema.pre("save", async function (next) {
+  if (!this.issueId) {
+    this.issueId = nanoid(8).toUpperCase(); 
+  }
+  next();
+});
+
 
 const Issue = mongoose.model("Issue", issueSchema);
 export default Issue;

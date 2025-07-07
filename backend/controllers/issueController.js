@@ -55,6 +55,7 @@ export const createIssue = async (req, res) => {
     const io = getIO();
     io.emit("new-issue", {
       _id: newIssue._id,
+      issueId: newIssue.issueId,
       title: newIssue.title,
       description: newIssue.description,
       imageURL: newIssue.imageURL,
@@ -73,7 +74,7 @@ export const createIssue = async (req, res) => {
   
     
 
-    res.status(201).json({ success: true, message: "New issue Added" });
+    res.status(201).json({ success: true, message: "New issue Added", issueId: newIssue.issueId });
   } catch (err) {
     res.status(500).json({ error: "Failed to create issue" });
   }
@@ -115,6 +116,21 @@ export const getIssueById = async (req, res) => {
   }
 };
 
+export const getIssuebyNanoID = async (req, res) => {
+  try {
+    const issue = await Issue.findOne({ issueId: req.params.id })
+      .populate("createdBy", "name role email")
+      .populate("verifiedBy", "name")
+      .populate('statusHistory.updatedBy', 'name role');
+    if (!issue) return res.status(404).json({ success: false, message: "Issue not found" });
+    res.json({ success: true, message: "Issue fetched successfully", issue });
+  }
+  catch (err) {
+    console.error(err);
+    res.status(500).json({ error: "Failed to get issue" });
+  }
+};
+
 // Update issue status
 export const updateIssueStatus = async (req, res) => {
   try {
@@ -145,23 +161,6 @@ export const updateIssueStatus = async (req, res) => {
     res.status(500).json({ error: "Failed to update issue status" });
   }
 };
-
-
-// Upvote an issue
-// export const upvoteIssue = async (req, res) => {
-//   try {
-//     const issue = await Issue.findById(req.params.id);
-//     if (!issue) return res.status(404).json({ success: false, message: "Issue not found" });
-
-//     issue.upvotes += 1;
-//     await issue.save();
-
-//     res.json({ success: true, message: "Issue upvoted", upvotes: issue.upvotes });
-//   } catch (err) {
-//     res.status(500).json({ error: "Failed to upvote issue" });
-//   }
-// };
-// controllers/issueController.js
 
 export const toggleUpvote = async (req, res) => {
   try {
