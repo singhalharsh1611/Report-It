@@ -16,6 +16,10 @@ const userSchema = new mongoose.Schema({
     aadharCard: { type: String }, // for moderator
     panCard: { type: String },    // for moderator
     isVerified: { type: Boolean, default: true }, // citizens and admins are verified by default
+    hasChangedPassword: {
+        type: Boolean,
+        default: false,
+    },
 });
 
 export default mongoose.model('User', userSchema);

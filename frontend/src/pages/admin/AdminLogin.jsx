@@ -5,7 +5,9 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { ShieldAlert, LogIn } from "lucide-react";
-import { useToast } from "@/hooks/use-toast";
+import axios from "axios";
+import ChangePasswordForm from "@/components/admin/ChangePasswordForm";
+import { toast } from "sonner";
 
 
 const AdminLogin = () => {
@@ -15,7 +17,8 @@ const AdminLogin = () => {
   });
   const [isLoading, setIsLoading] = useState(false);
   const navigate = useNavigate();
-  const { toast } = useToast();
+  const [adminInfo, setAdminInfo] = useState({ email: "", oldPassword: "" });
+  const [showChangePassword, setShowChangePassword] = useState(false);
 
   const handleInputChange = (e) => {
     setFormData({
@@ -24,52 +27,79 @@ const AdminLogin = () => {
     });
   };
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    setIsLoading(true);
+const handleSubmit = async (e) => {
+  e.preventDefault();
+  setIsLoading(true);
 
-    try {
-      // Simulate API call for demo
-      await new Promise(resolve => setTimeout(resolve, 1000));
-      
-      // Mock admin credentials
-      if (formData.email === "admin@reportit.com" && formData.password === "admin123") {
-        toast({
-          title: "Login Successful",
-          description: "Welcome to the Admin Dashboard",
-        });
-        navigate("/admin/dashboard");
-      } else {
-        toast({
-          title: "Login Failed",
-          description: "Invalid admin credentials",
-          variant: "destructive",
-        });
+  try {
+    const res = await axios.post(`${import.meta.env.VITE_BACKEND_URL}/api/admin/login`, formData, {
+      withCredentials: true,
+    });
+
+    const data = res.data;
+
+    if (data.user.role === "admin") {
+      if(!data.user.hasChangedPassword) {
+        setShowChangePassword(true); // toggle the form
+        setAdminInfo({
+        email: data.user.email,
+        oldPassword: formData.password,
+    });
+        toast.success("Login Successful", {
+            description: "Please update your password.",
+          });
       }
-    } catch (error) {
-      toast({
-        title: "Error",
-        description: "An error occurred during login",
-        variant: "destructive",
-      });
-    } finally {
-      setIsLoading(false);
+      else{
+          toast.success("Login Successful", {
+            description: "Welcome to the Admin Dashboard",
+          });
+          navigate("/admin/dashboard");
+      }
+      
+    } 
+      else {
+      toast.error("Access Denied", {
+          description: "You are not authorized as admin.",
+        });
     }
-  };
+  } catch (err) {
+    toast.error("Login Failed", {
+        description: err.response?.data?.message || "Something went wrong",
+      });
+  } finally {
+    setIsLoading(false);
+  }
+};
 
-  return (
-    <div className="min-h-screen bg-background flex items-center justify-center p-4">
-      <Card className="w-full max-w-md">
-        <CardHeader className="text-center">
-          <div className="flex justify-center mb-4">
-            <ShieldAlert className="h-12 w-12 text-primary" />
-          </div>
-          <CardTitle className="text-2xl font-bold">Admin Login</CardTitle>
-          <p className="text-muted-foreground">
-            Access the ReportIt Admin Dashboard
-          </p>
-        </CardHeader>
-        <CardContent>
+
+ return (
+  <div className="min-h-screen bg-background flex items-center justify-center p-4">
+    <Card className="w-full max-w-md">
+      <CardHeader className="text-center">
+        <div className="flex justify-center mb-4">
+          <ShieldAlert className="h-12 w-12 text-primary" />
+        </div>
+        <CardTitle className="text-2xl font-bold">Admin Login</CardTitle>
+        <p className="text-muted-foreground">
+          Access the ReportIt Admin Dashboard
+        </p>
+      </CardHeader>
+
+      <CardContent>
+        {showChangePassword ? (
+          // Show password change form
+          <ChangePasswordForm
+            adminInfo={adminInfo}
+            onSuccess={() => {
+              toast.success("Password updated", {
+                description: "Please log in again with the new password.",
+                });
+              setShowChangePassword(false);          // hide the form
+              setFormData({ email: "", password: "" }); // clear login fields
+            }}
+          />
+        ) : (
+          // Show login form
           <form onSubmit={handleSubmit} className="space-y-4">
             <div className="space-y-2">
               <Label htmlFor="email">Email</Label>
@@ -95,11 +125,7 @@ const AdminLogin = () => {
                 required
               />
             </div>
-            <Button
-              type="submit"
-              className="w-full"
-              disabled={isLoading}
-            >
+            <Button type="submit" className="w-full" disabled={isLoading}>
               {isLoading ? (
                 "Signing in..."
               ) : (
@@ -110,10 +136,12 @@ const AdminLogin = () => {
               )}
             </Button>
           </form>
-        </CardContent>
-      </Card>
-    </div>
-  );
+        )}
+      </CardContent>
+    </Card>
+  </div>
+);
+
 };
 
 export default AdminLogin;

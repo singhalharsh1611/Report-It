@@ -40,7 +40,8 @@ export const register = async (req, res) => {
         role: role || 'citizen',
         isVerified: (role === 'moderator') ? false : true,
         aadharCard: (role === 'moderator') ? aadharCard : undefined,
-        panCard: (role === 'moderator') ? panCard : undefined
+        panCard: (role === 'moderator') ? panCard : undefined,
+        hasChangedPassword: (role === 'admin') ? false : undefined
 
     });
     if (role === "moderator") {
@@ -88,6 +89,28 @@ export const login = async (req, res) => {
         });
     }
 
+    if (req.originalUrl.includes("/admin") && user.role !== "admin") {
+        return res.status(403).json({
+            message: "Access denied. You are not an admin.",
+            success: false,
+        });
+    }
+    
+    if (user.role === "admin" && !user.hasChangedPassword) {
+        const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET, { expiresIn: '1d' });
+        return res.status(200).json({
+            success: true,
+            message: "Password change required",
+            forcePasswordChange: true,
+            token,
+            user: {
+                email: user.email,
+                role: user.role,
+                hasChangedPassword: false,
+            },
+  });
+}
+
     if (user.role === 'moderator' && !user.isVerified) {
         return res.status(403).json({
             message: "Your account is under verification. Please wait for admin approval.",
@@ -104,6 +127,40 @@ export const login = async (req, res) => {
         token, user
     });
 };
+
+export const changeAdminPassword = async (req, res) => {
+  try {
+    const { email, oldPassword, newPassword } = req.body;
+
+    // Step 1: Validate inputs
+    if (!email || !oldPassword || !newPassword) {
+      return res.status(400).json({ success: false, message: "All fields are required" });
+    }
+
+    const user = await User.findOne({ email });
+
+    if (!user || user.role !== "admin") {
+      return res.status(404).json({ success: false, message: "Admin not found" });
+    }
+
+    const isMatch = await bcrypt.compare(oldPassword, user.password);
+    if (!isMatch) {
+      return res.status(401).json({ success: false, message: "Old password is incorrect" });
+    }
+
+    const hashedNewPassword = await bcrypt.hash(newPassword, 10);
+    user.password = hashedNewPassword;
+    user.hasChangedPassword = true;
+
+    await user.save();
+
+    res.json({ success: true, message: "Password updated successfully" });
+  } catch (error) {
+    console.error("Password change error:", error);
+    res.status(500).json({ success: false, message: "Internal server error" });
+  }
+};
+
 
 //forgot password mail sender
 const otpStore = {};
