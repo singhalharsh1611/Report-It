@@ -110,7 +110,7 @@ const ReportIssuePage = () => {
     }
 
     if(token===null){
-      toast.error("plz login");
+      toast.error("Please login");
       navigate("/login");
       return;
     }

@@ -1,8 +1,27 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Users, Clock, CheckCircle, AlertTriangle, FileText } from "lucide-react";
-
+import { Users, Clock, CheckCircle, AlertTriangle, FileText, CircleX } from "lucide-react";
+import { Progress } from "@/components/ui/progress";
 const OverviewTab = ({ stats, handleTabChange }) => {
+  if (!stats) {
+    return (
+      <div className="text-white p-6 text-lg font-medium">
+        Loading overview data...
+        <Progress value={33} />
+      </div>
+    );
+  }
+
+  const {
+    totalModerators = 0,
+    pendingModerators = 0,
+    totalIssues = 0,
+    completedIssues = 0,
+    rejectedIssues = 0,
+    pendingIssues = 0,
+    lastSync = "",
+  } = stats;
+
   return (
     <div className="space-y-6">
       {/* Overview Stats Cards */}
@@ -13,17 +32,27 @@ const OverviewTab = ({ stats, handleTabChange }) => {
             <Users className="h-4 w-4" style={{ color: '#9b87f5' }} />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold text-white">{stats.totalModerators}</div>
+            <div className="text-2xl font-bold text-white">{totalModerators}</div>
           </CardContent>
         </Card>
 
         <Card style={{ backgroundColor: '#2A2F3C', borderColor: '#3A3F4C' }}>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium text-gray-300">Pending Applications</CardTitle>
+            <CardTitle className="text-sm font-medium text-gray-300">Pending Moderators Applications</CardTitle>
             <Clock className="h-4 w-4" style={{ color: '#F59E0B' }} />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold text-white">{stats.pendingModerators}</div>
+            <div className="text-2xl font-bold text-white">{pendingModerators}</div>
+          </CardContent>
+        </Card>
+
+        <Card style={{ backgroundColor: '#2A2F3C', borderColor: '#3A3F4C' }}>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium text-gray-300">Total Issues</CardTitle>
+            <AlertTriangle className="h-4 w-4" style={{ color: '#F59E0B' }} />
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold text-white">{totalIssues}</div>
           </CardContent>
         </Card>
 
@@ -33,7 +62,17 @@ const OverviewTab = ({ stats, handleTabChange }) => {
             <CheckCircle className="h-4 w-4" style={{ color: '#10B981' }} />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold text-white">{stats.completedIssues}</div>
+            <div className="text-2xl font-bold text-white">{completedIssues}</div>
+          </CardContent>
+        </Card>
+
+        <Card style={{ backgroundColor: '#2A2F3C', borderColor: '#3A3F4C' }}>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium text-gray-300">Rejected Issues</CardTitle>
+            <CircleX className="h-5 w-5" style={{ color: '#d01111' }} />
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold text-white">{rejectedIssues}</div>
           </CardContent>
         </Card>
 
@@ -43,7 +82,7 @@ const OverviewTab = ({ stats, handleTabChange }) => {
             <AlertTriangle className="h-4 w-4" style={{ color: '#F59E0B' }} />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold text-white">{stats.pendingIssues}</div>
+            <div className="text-2xl font-bold text-white">{pendingIssues}</div>
           </CardContent>
         </Card>
       </div>
@@ -61,7 +100,7 @@ const OverviewTab = ({ stats, handleTabChange }) => {
               onClick={() => handleTabChange('moderators')}
             >
               <Users className="mr-2 h-4 w-4" />
-              Review Applications ({stats.pendingModerators})
+              Review Applications ({pendingModerators})
             </Button>
             <Button
               className="w-full justify-start"
@@ -69,7 +108,7 @@ const OverviewTab = ({ stats, handleTabChange }) => {
               onClick={() => handleTabChange('issues')}
             >
               <FileText className="mr-2 h-4 w-4" />
-              Review Issue Updates ({stats.pendingIssues} pending)
+              Review Issue Updates ({pendingIssues} pending)
             </Button>
           </CardContent>
         </Card>

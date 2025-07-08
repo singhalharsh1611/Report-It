@@ -14,11 +14,10 @@ import {
 import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Separator } from "@/components/ui/separator";
-import { useToast } from "@/hooks/use-toast";
+import { toast } from "sonner";
 import { useIsMobile } from "@/hooks/use-mobile";
 
 const AdminLayout = () => {
-  const { toast } = useToast();
   const navigate = useNavigate();
   const location = useLocation();
   const isMobile = useIsMobile();
@@ -42,11 +41,11 @@ const AdminLayout = () => {
   }, [navigate, toast]);
 
   const handleLogout = () => {
-    toast({
-      title: "Logged out",
-      description: "You have been successfully logged out",
-    });
-    navigate("/admin/login");
+    toast("Logged Out", {
+    description: "Admin has been successfully logged out.",
+    duration: 5000,
+  });
+    navigate("/admin");
   };
 
   const navItems = [

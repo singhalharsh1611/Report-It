@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useSearchParams } from "react-router-dom";
 import {
   Tabs,
@@ -16,112 +16,84 @@ import OverviewTab from "@/components/admin/OverviewTab";
 import ModeratorTable from "@/components/admin/ModeratorTable";
 import IssueReviewTable from "@/components/admin/IssueReviewTable";
 import StatisticsTab from "@/components/admin/StatisticsTab";
+import axios from "axios";
+
+const backend = import.meta.env.VITE_BACKEND_URL; 
 
 const AdminDashboard = () => {
   const [searchParams, setSearchParams] = useSearchParams();
   const activeTab = searchParams.get("tab") || "overview";
 
-  const [stats, setStats] = useState({
-    totalModerators: 12,
-    pendingModerators: 3,
-    totalIssues: 145,
-    completedIssues: 89,
-    rejectedIssues: 23,
-    pendingIssues: 33,
-    lastSync: new Date().toLocaleString(),
-  });
-
-  const [moderatorApplications, setModeratorApplications] = useState([
-    {
-      id: "MOD001",
-      name: "Ravi Kumar",
-      email: "ravi@example.com",
-      phone: "9876543210",
-      aadhaarNumber: "123456781234",
-      panNumber: "ABCDE1234F",
-      address: "123 Main St, Agra",
-      qualifications: "B.Tech in Civil Engineering",
-      experience: "3 years in municipal operations",
-      status: "pending",
-    },
-    {
-      id: "MOD002",
-      name: "Sonal Gupta",
-      email: "sonal@example.com",
-      phone: "9988776655",
-      aadhaarNumber: "432143214321",
-      panNumber: "XYZPQ9876L",
-      address: "22 Park Lane, Delhi",
-      qualifications: "M.Tech Urban Planning",
-      experience: "5 years in field inspections",
-      status: "verified",
-    },
-  ]);
-
-  const [issues, setIssues] = useState([
-    {
-      id: "ISSUE001",
-      title: "Broken streetlight",
-      category: "Infrastructure",
-      reporterEmail: "user1@example.com",
-      moderatorName: "Ravi Kumar",
-      moderatorId: "MOD001",
-      moderatorUpdate: "Replaced the bulb and fixed wiring",
-      moderatorAction: "completed",
-      adminStatus: "pending",
-      evidence: "Photo of new bulb",
-      updateDate: "2025-07-01",
-      priority: "High",
-    },
-    {
-      id: "ISSUE002",
-      title: "Garbage accumulation",
-      category: "Sanitation",
-      reporterEmail: "user2@example.com",
-      moderatorName: "Sonal Gupta",
-      moderatorId: "MOD002",
-      moderatorUpdate: "Cleared the garbage, awaiting pickup confirmation",
-      moderatorAction: "in_progress",
-      adminStatus: "verified",
-      evidence: "Before and after images",
-      updateDate: "2025-07-02",
-      priority: "Medium",
-    },
-  ]);
-
+  const [stats, setStats] = useState();
+  const [moderatorApplications, setModeratorApplications] = useState([]);
+  const[issues, setIssues] = useState([]);
+  const[loading, setLoading] = useState(true);
   const handleTabChange = (value) => {
     setSearchParams({ tab: value });
   };
 
-  const handleModeratorAction = (id, action) => {
-    setModeratorApplications((prev) =>
-      prev.map((app) =>
-        app.id === id
-          ? { ...app, status: action === "approve" ? "verified" : "rejected" }
-          : app
-      )
-    );
-    setStats((prev) => ({
-      ...prev,
-      pendingModerators: Math.max(0, prev.pendingModerators - 1),
-    }));
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        setLoading(true);
+        const [statsRes, moderatorsRes, issuesRes] = await Promise.all([
+          axios.get(`${backend}/api/admin/stats`),
+          axios.get(`${backend}/api/admin/moderators`),
+          axios.get(`${backend}/api/admin/issues`),
+        ]);
+        setStats(statsRes.data);
+        setModeratorApplications(moderatorsRes.data);
+        setIssues(issuesRes.data);
+      } catch (error) {
+        console.error("Failed to fetch admin dashboard data:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchData();
+  }, []);
+
+  const handleModeratorAction = async (id, action) => {
+    try {
+      await axios.patch(`${backend}/api/admin/moderators/${id}`, {
+        status: action === "approve" ? "verified" : "rejected",
+      });
+      setModeratorApplications((prev) =>
+        prev.map((app) =>
+          app.id === id
+            ? { ...app, status: action === "approve" ? "verified" : "rejected" }
+            : app
+        )
+      );
+      setStats((prev) => ({
+        ...prev,
+        pendingModerators: Math.max(0, prev.pendingModerators - 1),
+      }));
+    } catch (error) {
+      console.error("Failed to update moderator status:", error);
+    }
   };
 
-  const handleIssueStatusChange = (id, status) => {
-    setIssues((prev) =>
-      prev.map((issue) =>
-        issue.id === id ? { ...issue, adminStatus: status } : issue
-      )
-    );
-
-    setStats((prev) => ({
-      ...prev,
-      pendingIssues: Math.max(0, prev.pendingIssues - 1),
-      completedIssues:
-        status === "approved" ? prev.completedIssues + 1 : prev.completedIssues,
-      rejectedIssues:
-        status === "rejected" ? prev.rejectedIssues + 1 : prev.rejectedIssues,
-    }));
+   const handleIssueStatusChange = async (id, status) => {
+    try {
+      await axios.patch(`${backend}/api/admin/issues/${id}`, { adminStatus: status });
+      setIssues((prev) =>
+        prev.map((issue) =>
+          issue.id === id ? { ...issue, adminStatus: status } : issue
+        )
+      );
+      setStats((prev) => ({
+        ...prev,
+        pendingIssues: Math.max(0, prev.pendingIssues - 1),
+        completedIssues:
+          status === "approved" ? prev.completedIssues + 1 : prev.completedIssues,
+        rejectedIssues:
+          status === "rejected" ? prev.rejectedIssues + 1 : prev.rejectedIssues,
+      }));
+    } catch (error) {
+      console.error("Failed to update issue status:", error);
+    }
   };
 
   const getStatusColor = (status) => {
@@ -191,7 +163,7 @@ const AdminDashboard = () => {
           </TabsList>
 
           <TabsContent value="overview">
-            <OverviewTab stats={stats} onNavigate={handleTabChange} />
+            <OverviewTab stats={stats} handleTabChange={handleTabChange} />
           </TabsContent>
 
           <TabsContent value="moderators">
