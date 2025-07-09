@@ -1,7 +1,16 @@
 import React from "react";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
+import { Progress } from "@/components/ui/progress";
 
 const StatisticsTab = ({ stats }) => {
+  if (!stats) {
+      return (
+        <div className="text-white p-6 text-lg font-medium">
+          Loading Statistics data...
+          <Progress value={75} />
+        </div>
+      );
+  }
   return (
     <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
       <Card style={{ backgroundColor: '#2A2F3C', borderColor: '#3A3F4C' }}>
@@ -14,7 +23,7 @@ const StatisticsTab = ({ stats }) => {
             <span className="font-bold text-white">{stats.totalModerators}</span>
           </div>
           <div className="flex justify-between">
-            <span className="text-gray-300">Pending Applications:</span>
+            <span className="text-gray-300">Pending Moderator Applications:</span>
             <span className="font-bold text-white">{stats.pendingModerators}</span>
           </div>
           <div className="flex justify-between">
@@ -22,7 +31,7 @@ const StatisticsTab = ({ stats }) => {
             <span className="font-bold text-white">{stats.totalIssues}</span>
           </div>
           <div className="flex justify-between">
-            <span className="text-gray-300">Completed Issues:</span>
+            <span className="text-gray-300">Resolved Issues:</span>
             <span className="font-bold" style={{ color: '#10B981' }}>{stats.completedIssues}</span>
           </div>
           <div className="flex justify-between">
