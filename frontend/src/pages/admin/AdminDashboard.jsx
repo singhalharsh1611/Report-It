@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useContext, useEffect, useState } from "react";
 import { useSearchParams } from "react-router-dom";
 import {
   Tabs,
@@ -17,13 +17,14 @@ import ModeratorTable from "@/components/admin/ModeratorTable";
 import IssueReviewTable from "@/components/admin/IssueReviewTable";
 import StatisticsTab from "@/components/admin/StatisticsTab";
 import axios from "axios";
+import AdminAuthContext from "@/contexts/AdminAuthContext";
 
 const backend = import.meta.env.VITE_BACKEND_URL; 
 
 const AdminDashboard = () => {
   const [searchParams, setSearchParams] = useSearchParams();
   const activeTab = searchParams.get("tab") || "overview";
-
+  const { adminToken } = useContext(AdminAuthContext);
   const [stats, setStats] = useState();
   const [moderatorApplications, setModeratorApplications] = useState([]);
   const[issues, setIssues] = useState([]);
@@ -34,12 +35,19 @@ const AdminDashboard = () => {
 
   useEffect(() => {
     const fetchData = async () => {
+
       try {
         setLoading(true);
+
+        const config = {
+        headers: {
+          Authorization: `Bearer ${adminToken}`,
+        },
+      };
         const [statsRes, moderatorsRes, issuesRes] = await Promise.all([
-          axios.get(`${backend}/api/admin/stats`),
-          axios.get(`${backend}/api/admin/moderators`),
-          axios.get(`${backend}/api/admin/issues`),
+          axios.get(`${backend}/api/admin/stats`,config),
+          axios.get(`${backend}/api/admin/moderators`,config),
+          axios.get(`${backend}/api/admin/issues`,config),
         ]);
         setStats(statsRes.data);
         setModeratorApplications(moderatorsRes.data);

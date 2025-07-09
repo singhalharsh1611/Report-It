@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useContext, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -8,6 +8,7 @@ import { ShieldAlert, LogIn } from "lucide-react";
 import axios from "axios";
 import ChangePasswordForm from "@/components/admin/ChangePasswordForm";
 import { toast } from "sonner";
+import AdminAuthContext from "@/contexts/AdminAuthContext";
 
 
 const AdminLogin = () => {
@@ -19,7 +20,7 @@ const AdminLogin = () => {
   const navigate = useNavigate();
   const [adminInfo, setAdminInfo] = useState({ email: "", oldPassword: "" });
   const [showChangePassword, setShowChangePassword] = useState(false);
-
+const { setAdminToken, setAdmin } = useContext(AdminAuthContext);
   const handleInputChange = (e) => {
     setFormData({
       ...formData,
@@ -37,6 +38,10 @@ const handleSubmit = async (e) => {
     });
 
     const data = res.data;
+    // console.log(data);
+    localStorage.setItem("adminToken", data.token); 
+    setAdminToken(data.token);
+setAdmin(data.user);
 
     if (data.user.role === "admin") {
       if(!data.user.hasChangedPassword) {
@@ -50,6 +55,7 @@ const handleSubmit = async (e) => {
           });
       }
       else{
+
           toast.success("Login Successful", {
             description: "Welcome to the Admin Dashboard",
           });

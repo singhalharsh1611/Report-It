@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useContext } from "react";
 import { Outlet, Link, useNavigate, useLocation } from "react-router-dom";
 import { 
   LayoutDashboard, 
@@ -16,8 +16,10 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { Separator } from "@/components/ui/separator";
 import { toast } from "sonner";
 import { useIsMobile } from "@/hooks/use-mobile";
+import AdminAuthContext from "@/contexts/AdminAuthContext";
 
 const AdminLayout = () => {
+  const{logout }=useContext(AdminAuthContext);
   const navigate = useNavigate();
   const location = useLocation();
   const isMobile = useIsMobile();
@@ -45,6 +47,7 @@ const AdminLayout = () => {
     description: "Admin has been successfully logged out.",
     duration: 5000,
   });
+    logout();
     navigate("/admin");
   };
 

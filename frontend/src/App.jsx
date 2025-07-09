@@ -27,6 +27,8 @@ import AnalyticsPage from "./pages/citizen/AnalyticsPage.jsx";
 import AdminLogin from "./pages/admin/AdminLogin.jsx";
 import AdminLayout from "./components/admin/AdminLayout.jsx";
 import AdminDashboard from "./pages/admin/AdminDashboard.jsx";
+import { AdminAuthProvider } from "./contexts/AdminAuthProvider.jsx";
+import ProtectedAdminRoute from "./components/admin/ProtectedAdminRoute.jsx";
 
 const App = () => {
   return (
@@ -35,88 +37,98 @@ const App = () => {
       <Sonner />
       <BrowserRouter>
         <AuthProvider>
-          <Routes>
-            <Route path="/moderator" element={<Index />} />
-            {/* Public Routes with Layout */}
-            <Route
-              path="/"
-              element={
-                <Layout>
-                  <HomePage />
-                </Layout>
-              }
-            />
-            <Route
-              path="/report"
-              element={
-                <Layout>
-                  <ReportIssuePage />
-                </Layout>
-              }
-            />
-            <Route
-              path="/map"
-              element={
-                <Layout>
-                  <MapPage />
-                </Layout>
-              }
-            />
-            <Route
-              path="/status"
-              element={
-                <Layout>
-                  <StatusTrackingPage />
-                </Layout>
-              }
-            />
-            <Route
-              path="/issues"
-              element={
-                <Layout>
-                  <IssueFeedPage />
-                </Layout>
-              }
-            />
-            <Route
-              path="/issue/:id"
-              element={
-                <Layout>
-                  <IssueDetailsPage />
-                </Layout>
-              }
-            />
-            <Route
-              path="/analytics"
-              element={
-                <Layout>
-                  <AnalyticsPage />
-                </Layout>
-              }
-            />
+          <AdminAuthProvider>
+            <Routes>
+              <Route path="/moderator" element={<Index />} />
+              {/* Public Routes with Layout */}
+              <Route
+                path="/"
+                element={
+                  <Layout>
+                    <HomePage />
+                  </Layout>
+                }
+              />
+              <Route
+                path="/report"
+                element={
+                  <Layout>
+                    <ReportIssuePage />
+                  </Layout>
+                }
+              />
+              <Route
+                path="/map"
+                element={
+                  <Layout>
+                    <MapPage />
+                  </Layout>
+                }
+              />
+              <Route
+                path="/status"
+                element={
+                  <Layout>
+                    <StatusTrackingPage />
+                  </Layout>
+                }
+              />
+              <Route
+                path="/issues"
+                element={
+                  <Layout>
+                    <IssueFeedPage />
+                  </Layout>
+                }
+              />
+              <Route
+                path="/issue/:id"
+                element={
+                  <Layout>
+                    <IssueDetailsPage />
+                  </Layout>
+                }
+              />
+              <Route
+                path="/analytics"
+                element={
+                  <Layout>
+                    <AnalyticsPage />
+                  </Layout>
+                }
+              />
 
-            {/* Auth Routes */}
-            <Route path="/login" element={<LoginPage />} />
-            <Route path="/register" element={<RegisterPage />} />
-            <Route path="/forgot-password" element={<ForgotPassword />} />
-            <Route path="/google-success" element={<GoogleSuccess />} />
+              {/* Auth Routes */}
+              <Route path="/login" element={<LoginPage />} />
+              <Route path="/register" element={<RegisterPage />} />
+              <Route path="/forgot-password" element={<ForgotPassword />} />
+              <Route path="/google-success" element={<GoogleSuccess />} />
 
-            {/* Moderator Routes */}
+              {/* Moderator Routes */}
 
-            <Route path="/moderator" element={<ModeratorLayout />}>
-              <Route path="dashboard" element={<Dashboard />} />
-              <Route path="issues/:issueId" element={<IssueDetail />} />
-            </Route>
-            <Route path="/auth/login" element={<Login />} />
-            <Route path="/auth/signup" element={<Signup />} />
+              <Route path="/moderator" element={<ModeratorLayout />}>
+                <Route path="dashboard" element={<Dashboard />} />
+                <Route path="issues/:issueId" element={<IssueDetail />} />
+              </Route>
+              <Route path="/auth/login" element={<Login />} />
+              <Route path="/auth/signup" element={<Signup />} />
 
-            {/* Admin Routes - Wrapped in Layout */}
-            <Route path="/admin" element={<AdminLogin />} />
-            <Route path="/admin" element={<AdminLayout />}>
-              <Route path="dashboard" element={<AdminDashboard/>} />
-            </Route>
+              {/* Admin Routes - Wrapped in Layout */}
+              <Route path="/admin" element={<AdminLogin />} />
+              <Route
+                path="/admin"
+                element={
+                  <ProtectedAdminRoute>
+                    <AdminLayout />
+                  </ProtectedAdminRoute>
+                }
+              >
+                <Route path="dashboard" element={<AdminDashboard />} />
+              </Route>
 
-          </Routes>
+
+            </Routes>
+          </AdminAuthProvider>
         </AuthProvider>
       </BrowserRouter>
     </>
