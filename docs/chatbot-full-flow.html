@@ -1,0 +1,350 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Report-It Chatbot Full Flow (Code-Verified)</title>
+  <style>
+    :root {
+      --bg: #f6f8fb;
+      --card: #ffffff;
+      --text: #1f2937;
+      --muted: #6b7280;
+      --border: #e5e7eb;
+      --primary: #1d4ed8;
+      --okbg: #ecfeff;
+      --okborder: #06b6d4;
+      --warnbg: #fff7ed;
+      --warnborder: #f59e0b;
+      --codebg: #0b1020;
+      --codefg: #dbeafe;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--text);
+      font-family: Inter, system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+      line-height: 1.65;
+    }
+    .wrap {
+      max-width: 1100px;
+      margin: 24px auto;
+      padding: 0 16px;
+    }
+    .card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 20px;
+      margin-bottom: 16px;
+      box-shadow: 0 6px 18px rgba(0,0,0,.05);
+    }
+    h1,h2,h3 { margin: 0 0 10px; color: #0f172a; }
+    h1 { font-size: 1.8rem; }
+    h2 { font-size: 1.35rem; margin-top: 6px; }
+    h3 { font-size: 1.05rem; margin-top: 8px; }
+    p { margin: 8px 0; }
+    ul, ol { margin-top: 8px; }
+    code {
+      background: #eef2ff;
+      color: #1e3a8a;
+      padding: 2px 6px;
+      border-radius: 6px;
+      font-size: .93em;
+    }
+    pre {
+      margin: 10px 0;
+      background: var(--codebg);
+      color: var(--codefg);
+      border-radius: 10px;
+      padding: 14px;
+      overflow-x: auto;
+      white-space: pre-wrap;
+    }
+    .flow {
+      background: var(--okbg);
+      border-left: 4px solid var(--okborder);
+      border-radius: 8px;
+      padding: 12px 14px;
+      margin: 10px 0;
+    }
+    .warn {
+      background: var(--warnbg);
+      border-left: 4px solid var(--warnborder);
+      border-radius: 8px;
+      padding: 12px 14px;
+      margin: 10px 0;
+    }
+    .muted { color: var(--muted); font-size: .95rem; }
+    .mono { font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; }
+    a { color: var(--primary); text-decoration: none; }
+    a:hover { text-decoration: underline; }
+    .grid {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 12px;
+    }
+    @media (min-width: 900px) {
+      .grid { grid-template-columns: 1fr 1fr; }
+    }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="card">
+      <h1>Report-It Chatbot: Full Flow (Code-Verified)</h1>
+      <p>This document explains the complete chatbot behavior using the actual code in repository <strong>singhalharsh1611/Report-It</strong>.</p>
+      <p class="muted">Verified against commit: <code>923f4ab6de03e2b1df4fce593e62f6701611b8ae</code></p>
+    </div>
+
+    <div class="card">
+      <h2>1) High-Level Architecture</h2>
+      <div class="flow"><strong>Frontend Chatbot Widget</strong> → <strong>Backend API Routes</strong> → <strong>Issue Controller / Gemini Controller</strong> → <strong>MongoDB + Google Gemini API</strong> → response back to chatbot UI</div>
+      <ul>
+        <li>Frontend chatbot component: <code>frontend/src/components/chatbotWidget/ChatbotWidget.jsx</code></li>
+        <li>Backend server mounts routes at:
+          <ul>
+            <li><code>/api/issue</code> in <code>backend/server.js</code> line 81</li>
+            <li><code>/api/gemini</code> in <code>backend/server.js</code> line 85</li>
+          </ul>
+        </li>
+        <li>Gemini route/controller:
+          <ul>
+            <li><code>backend/routes/geminiRoute.js</code> line 6</li>
+            <li><code>backend/controllers/geminiController.js</code> lines 1–44</li>
+          </ul>
+        </li>
+      </ul>
+    </div>
+
+    <div class="card">
+      <h2>2) Chatbot State Machine (step-based flow)</h2>
+      <p>Chatbot behavior is driven by <code>step</code> state in <code>ChatbotWidget.jsx</code>.</p>
+      <ul>
+        <li>Initial state: <code>step = "intro"</code> (line 22)</li>
+        <li>Main options shown only in intro: lines 425–449</li>
+        <li>Message input form shown only when <code>step !== "intro"</code> and <code>step !== "report_waiting_image"</code>: lines 451–470</li>
+      </ul>
+      <pre>Available steps observed in code:
+- intro
+- report_waiting_issue
+- report_waiting_image
+- track_waiting_id
+- others</pre>
+    </div>
+
+    <div class="card">
+      <h2>3) Full Flow: Report Issue Button</h2>
+      <ol>
+        <li><strong>User clicks "Report Issue" button</strong>
+          <ul>
+            <li>Button click at line 430 calls <code>handleOptionClick("report")</code></li>
+            <li><code>handleOptionClick</code> at lines 355–359 sets step to <code>report_waiting_issue</code> and bot asks for issue description.</li>
+          </ul>
+        </li>
+        <li><strong>User submits issue text</strong>
+          <ul>
+            <li>Form submit calls <code>handleSubmit</code> (line 453, function starts line 56)</li>
+            <li>Branch check: line 64 (<code>if (step === "report_waiting_issue")</code>)</li>
+          </ul>
+        </li>
+        <li><strong>System prompt to Gemini for JSON extraction</strong>
+          <ul>
+            <li>Prompt built in lines 68–78:</li>
+          </ul>
+<pre>Given this civic issue description: "${userText}", generate a JSON object with:
+"title", "description", "category"
+
+The description should be concise and clear and tells clearly what the issue is.
+
+Category must be one of:
+roads, street light, sewage, water, electricity, garbage, others.
+
+Reply ONLY JSON, nothing else.</pre>
+          <ul>
+            <li>Gemini API call from frontend: lines 79–81 → <code>POST /api/gemini/generate</code></li>
+            <li>Raw response parsing: lines 83–97</li>
+            <li>Set extracted fields in issue state: lines 99–104</li>
+            <li>Bot confirmation message: lines 107–112</li>
+          </ul>
+        </li>
+        <li><strong>Location collection</strong>
+          <ul>
+            <li>Calls <code>handleLocation()</code> line 113</li>
+            <li>Function is lines 256–309</li>
+            <li>Uses browser geolocation (257–263)</li>
+            <li>Reverse geocodes via OpenCage API (267–272, uses env key line 11)</li>
+            <li>Stores location in state (277–283)</li>
+            <li>Moves to image step: <code>setStep("report_waiting_image")</code> at line 286 (or 299 in fallback)</li>
+          </ul>
+        </li>
+        <li><strong>Image upload + final submission</strong>
+          <ul>
+            <li>Image input is shown only at report_waiting_image: lines 405–414</li>
+            <li>On image select: <code>handleImageUpload</code> lines 311–321</li>
+            <li>Calls <code>submitIssue(files)</code> line 320</li>
+            <li><code>submitIssue</code> lines 323–353 sends multipart <code>POST /api/issue</code> at line 338 with token header 340</li>
+          </ul>
+        </li>
+        <li><strong>Backend issue create path</strong>
+          <ul>
+            <li>Route: <code>backend/routes/issueRouter.js</code> line 21 → <code>createIssue</code></li>
+            <li>Controller: <code>backend/controllers/issueController.js</code> (snippet available)
+              <ul>
+                <li>Create new issue object at line 49</li>
+                <li>Save at line 51</li>
+                <li>Emit socket event <code>new-issue</code> (53 onwards)</li>
+                <li>Return success + <code>issueId</code> at line 75</li>
+              </ul>
+            </li>
+            <li>Issue ID generation in model pre-save:
+              <ul>
+                <li><code>backend/models/issueModel.js</code> lines 78–84 uses <code>nanoid(8).toUpperCase()</code></li>
+              </ul>
+            </li>
+          </ul>
+        </li>
+      </ol>
+    </div>
+
+    <div class="card">
+      <h2>4) Full Flow: Track Issue Button</h2>
+      <ol>
+        <li><strong>User clicks "Track Issue"</strong>
+          <ul>
+            <li>Button click line 437 → <code>handleOptionClick("track")</code></li>
+            <li>Set step <code>track_waiting_id</code> at line 362</li>
+          </ul>
+        </li>
+        <li><strong>User enters issue ID and submits</strong>
+          <ul>
+            <li>In <code>handleSubmit</code>, branch line 120</li>
+            <li>Fetch issue by nano ID: line 123 → <code>GET /api/issue/issueId/${userText}</code></li>
+          </ul>
+        </li>
+        <li><strong>Backend issue fetch path</strong>
+          <ul>
+            <li>Route: <code>backend/routes/issueRouter.js</code> line 24 → <code>getIssuebyNanoID</code></li>
+            <li>Controller: <code>backend/controllers/issueController.js</code> lines 118–132</li>
+            <li>DB query: line 120 <code>Issue.findOne({ issueId: req.params.id })</code></li>
+          </ul>
+        </li>
+        <li><strong>Gemini formatting prompt for citizen-friendly status</strong>
+          <ul>
+            <li>Constructed lines 149–158 using fetched issue JSON</li>
+            <li>Requests bold/italics/bullets and concise summary</li>
+            <li>Gemini call: lines 160–162 → <code>POST /api/gemini/generate</code></li>
+            <li>Bot reply shown line 166, then step reset to intro line 167</li>
+          </ul>
+        </li>
+      </ol>
+    </div>
+
+    <div class="card">
+      <h2>5) Full Flow: Others Button</h2>
+      <ol>
+        <li><strong>User clicks "Others"</strong>
+          <ul>
+            <li>Button click line 444 → <code>handleOptionClick("others")</code></li>
+            <li>Set step to <code>others</code> line 366</li>
+          </ul>
+        </li>
+        <li><strong>User message handling in others flow</strong>
+          <ul>
+            <li>Branch check lines 174–253</li>
+            <li>Stores history in <code>othersChatHistory</code> (176–182 and 242–248)</li>
+            <li>Keeps last 20 messages only (178–180, 244–246)</li>
+            <li>Builds <code>conversationText</code> lines 189–192</li>
+          </ul>
+        </li>
+        <li><strong>System prompt used in others flow</strong>
+          <ul>
+            <li>Prompt starts line 194 and includes instructions around reporting/tracking redirects and civic Q&amp;A.</li>
+            <li>Contains explicit link instructions:
+              <ul>
+                <li><code>[Go to Report Issue](${frontend}/report)</code> lines 209+</li>
+                <li><code>[Go to Track Issue](${frontend}/status)</code> lines 215+</li>
+              </ul>
+            </li>
+          </ul>
+<pre>Core intent of prompt:
+- Assistant name: "Report It AI Assistant"
+- Help with reporting, tracking, civic questions
+- If user wants new report -> instruct cancel + choose Report Issue + provide report link
+- If user wants tracking -> instruct cancel + choose Track Issue + provide tracking link
+- If uncertain -> avoid hallucination and suggest local civic office/official website</pre>
+          <ul>
+            <li>Gemini call line 235 → <code>POST /api/gemini/generate</code></li>
+            <li>Reply displayed line 241</li>
+          </ul>
+        </li>
+      </ol>
+    </div>
+
+    <div class="card">
+      <h2>6) Backend Gemini Function (exact)</h2>
+      <p>File: <code>backend/controllers/geminiController.js</code> lines 1–44</p>
+      <ol>
+        <li>Reads prompt from request body (line 2)</li>
+        <li>Validates prompt presence; 400 if missing (4–9)</li>
+        <li>Calls Google endpoint (13):
+          <code>models/gemini-1.5-flash-latest:generateContent</code></li>
+        <li>Sends API key in header <code>X-Goog-Api-Key</code> from env (18)</li>
+        <li>Request body includes <code>contents.parts.text = prompt</code> (20–25)</li>
+        <li>Extracts generated text safely (32–34)</li>
+        <li>Returns <code>{ success: true, text }</code> (36)</li>
+        <li>Error fallback 500 with "Gemini request failed" (37–42)</li>
+      </ol>
+    </div>
+
+    <div class="card">
+      <h2>7) Direct message without selecting any option (actual current behavior)</h2>
+      <div class="warn">
+        <strong>Current code does not allow direct message in intro.</strong>
+        <ul>
+          <li>Initial step is <code>intro</code> (line 22)</li>
+          <li>When step is intro, only the 3 action buttons are shown (425–449)</li>
+          <li>Text input form is hidden in intro (451 condition)</li>
+          <li>Therefore user must click one of: Report Issue / Track Issue / Others first.</li>
+        </ul>
+      </div>
+      <p>No automatic intent classification from a free-typed intro message exists in this file.</p>
+    </div>
+
+    <div class="card">
+      <h2>8) Route-to-function Map (Quick Reference)</h2>
+      <div class="grid">
+        <div>
+          <h3>Issue Routes</h3>
+          <ul>
+            <li><code>POST /api/issue</code> → <code>createIssue</code> (<code>issueRouter.js:21</code>)</li>
+            <li><code>GET /api/issue/issueId/:id</code> → <code>getIssuebyNanoID</code> (<code>issueRouter.js:24</code>)</li>
+            <li><code>GET /api/issue</code> → <code>getAllIssues</code> (<code>issueRouter.js:22</code>)</li>
+          </ul>
+        </div>
+        <div>
+          <h3>Gemini Route</h3>
+          <ul>
+            <li><code>POST /api/gemini/generate</code> → <code>generateContent</code> (<code>geminiRoute.js:6</code>)</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2>9) End-to-end Summary (one-liners)</h2>
+      <ul>
+        <li><strong>Report Issue:</strong> button → describe issue → Gemini extracts title/desc/category → location fetch → image upload → POST issue → returns issueId.</li>
+        <li><strong>Track Issue:</strong> button → enter issueId → backend fetch by nanoid → Gemini formats readable status message.</li>
+        <li><strong>Others:</strong> button → free civic query → conversation prompt + history → Gemini answer + route guidance links.</li>
+        <li><strong>Direct intro typing:</strong> not enabled in current UI state logic.</li>
+      </ul>
+    </div>
+
+    <div class="card">
+      <p class="muted">Prepared from actual repository code paths and line numbers only (no assumed architecture beyond observed code).</p>
+    </div>
+  </div>
+</body>
+</html>
